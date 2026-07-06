@@ -1,0 +1,158 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Mail, Lock, User, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/components/providers/auth-provider";
+import { getSupabaseBrowserSafe } from "@/lib/supabase/client";
+import { toast } from "@/components/ui/toaster";
+
+export default function RegisterPage() {
+  const router = useRouter();
+  const { refresh } = useAuth();
+  const [form, setForm] = React.useState({ username: "", full_name: "", email: "", password: "", confirm: "", city: "" });
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
+  const [loading, setLoading] = React.useState(false);
+  const [noEnv, setNoEnv] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!getSupabaseBrowserSafe()) setNoEnv(true);
+  }, []);
+
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(form.username)) e.username = "3–20 karakter (huruf, angka, _).";
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) e.email = "Format email tidak valid.";
+    if (form.password.length < 6) e.password = "Minimal 6 karakter.";
+    if (form.confirm !== form.password) e.confirm = "Konfirmasi password tidak cocok.";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+    const supabase = getSupabaseBrowserSafe();
+    if (!supabase) return setNoEnv(true);
+    setLoading(true);
+    const { data, error } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        data: {
+          username: form.username,
+          full_name: form.full_name,
+          city: form.city,
+        },
+      },
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+
+    if (data.session && data.user) {
+      // Safety net: persist the profile + username immediately, even if the
+      // DB trigger hasn't fired yet. The RLS insert policy allows the user to
+      // write their own profile row (user_id = auth.uid()).
+      try {
+        await supabase.from("profiles").upsert(
+          {
+            id: data.user.id,
+            username: form.username,
+            full_name: form.full_name,
+            city: form.city,
+          },
+          { onConflict: "id" }
+        );
+      } catch {
+        /* non-fatal — the trigger handles creation */
+      }
+      await refresh();
+      toast.success("Akun berhasil dibuat");
+      router.push("/dashboard");
+    } else {
+      toast.success("Cek email untuk verifikasi akun Anda");
+      router.push("/login");
+    }
+  };
+
+  return (
+    <div className="container flex min-h-[calc(100vh-4rem)] items-center justify-center py-10">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 text-center">
+          <Link href="/" className="inline-flex items-center gap-2 text-xl font-bold">
+            <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">T</span>
+            Temuin
+          </Link>
+          <h1 className="mt-4 text-2xl font-bold">Daftar</h1>
+          <p className="text-sm text-muted-foreground">Buat akun untuk mulai melaporkan barang.</p>
+        </div>
+
+        {noEnv && (
+          <div className="mb-4 rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
+            Supabase belum dikonfigurasi. Salin <code>.env.local.example</code> → <code>.env.local</code> dan isi
+            URL &amp; anon key Supabase Anda.
+          </div>
+        )}
+
+        <form onSubmit={submit} className="space-y-4 rounded-xl border border-border bg-card p-6 shadow-soft">
+          <div className="space-y-1.5">
+            <Label htmlFor="username">Username</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input id="username" value={form.username} onChange={set("username")} className="pl-9" placeholder="nama_pengguna" />
+            </div>
+            {errors.username && <p className="text-xs text-destructive">{errors.username}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="full_name">Nama Lengkap</Label>
+            <Input id="full_name" value={form.full_name} onChange={set("full_name")} placeholder="Budi Santoso" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input id="email" type="email" value={form.email} onChange={set("email")} className="pl-9" placeholder="you@email.com" />
+            </div>
+            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="city">Kota</Label>
+            <Input id="city" value={form.city} onChange={set("city")} placeholder="Jakarta" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input id="password" type="password" value={form.password} onChange={set("password")} className="pl-9" placeholder="Minimal 6 karakter" />
+            </div>
+            {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="confirm">Konfirmasi Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input id="confirm" type="password" value={form.confirm} onChange={set("confirm")} className="pl-9" placeholder="Ulangi password" />
+            </div>
+            {errors.confirm && <p className="text-xs text-destructive">{errors.confirm}</p>}
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading && <Loader2 className="size-4 animate-spin" />} Daftar
+          </Button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Sudah punya akun?{" "}
+          <Link href="/login" className="font-medium text-primary hover:underline">Masuk</Link>
+        </p>
+      </div>
+    </div>
+  );
+}
