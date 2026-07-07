@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, User, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -83,9 +84,8 @@ export default function RegisterPage() {
     <div className="container flex min-h-[calc(100vh-4rem)] items-center justify-center py-10">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-xl font-bold">
-            <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">T</span>
-            Temuin
+          <Link href="/" className="inline-flex items-center justify-center gap-2 text-xl font-bold">
+            <Image src="/temuin-logo.png" alt="Temuin" width={40} height={40} className="size-10" />
           </Link>
           <h1 className="mt-4 text-2xl font-bold">Daftar</h1>
           <p className="text-sm text-muted-foreground">Buat akun untuk mulai melaporkan barang.</p>

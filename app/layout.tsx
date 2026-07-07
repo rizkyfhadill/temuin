@@ -23,6 +23,11 @@ export const metadata: Metadata = {
     "Barang hilang? Temuin aja. Platform AI Lost & Found untuk Indonesia dengan pencocokan cerdas, chat aman, dan verifikasi admin.",
   keywords: ["lost and found", "barang hilang", "temuin", "lost found indonesia", "ai match"],
   applicationName: "Temuin",
+  icons: {
+    icon: "/temuin-logo.png",
+    shortcut: "/temuin-logo.png",
+    apple: "/temuin-logo.png",
+  },
   openGraph: {
     title: "Temuin — Platform AI Lost & Found Indonesia",
     description: "Barang hilang? Temuin aja.",
