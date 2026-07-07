@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, Bell, Menu, X, Plus, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
@@ -39,10 +40,7 @@ export function Navbar() {
     <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/80 backdrop-blur-xl">
       <div className="container flex h-16 items-center gap-3">
         <Link href="/" className="flex items-center gap-2 font-bold">
-          <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-            <span className="text-lg leading-none">T</span>
-          </span>
-          <span className="text-lg tracking-tight">Temuin</span>
+          <Image src="/temuin-logo.png" alt="Temuin" width={40} height={40} className="size-10" />
         </Link>
 
         <nav className="ml-4 hidden items-center gap-1 md:flex">

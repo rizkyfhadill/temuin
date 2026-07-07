@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Github, Twitter, Instagram, Mail, MapPin } from "lucide-react";
 
 const COLS = [
@@ -36,10 +37,7 @@ export function Footer() {
       <div className="container grid gap-10 py-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div>
           <Link href="/" className="flex items-center gap-2 font-bold">
-            <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-              <span className="text-lg leading-none">T</span>
-            </span>
-            <span className="text-lg">Temuin</span>
+            <Image src="/temuin-logo.png" alt="Temuin" width={40} height={40} className="size-10" />
           </Link>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
             Platform AI Lost &amp; Found untuk Indonesia. Barang hilang? Temuin aja.
