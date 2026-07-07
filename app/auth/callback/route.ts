@@ -15,11 +15,25 @@ export async function GET(request: Request) {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return NextResponse.redirect(`${origin}${next}`);
+    return NextResponse.redirect(`${origin}/login?error=oauth_callback_failed`);
   }
-  // Token-hash flow (default Supabase email confirmation / password reset).
-  else if (token_hash && type) {
+
+  // Token-hash flow (Supabase email confirmation / password reset).
+  if (token_hash && type) {
     const { error } = await supabase.auth.verifyOtp({ token_hash, type });
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
+    if (!error) {
+      // Password reset successful - redirect to login with message
+      if (type === "recovery") {
+        return NextResponse.redirect(`${origin}/login?message=password_reset_success`);
+      }
+      // Email confirmation successful - redirect to login
+      if (type === "signup") {
+        return NextResponse.redirect(`${origin}/login?message=email_confirmed`);
+      }
+      // Default: redirect to next or dashboard
+      return NextResponse.redirect(`${origin}${next}`);
+    }
+    return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
   }
 
   return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);

@@ -20,11 +20,11 @@ export default function ForgotPasswordPage() {
     if (!supabase) return toast.error("Supabase belum dikonfigurasi");
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/settings`,
+      redirectTo: `${window.location.origin}/auth/callback?next=/login&type=recovery`,
     });
     setLoading(false);
     if (error) return toast.error(error.message);
-    toast.success("Link reset password telah dikirim ke email");
+    toast.success("Link reset password telah dikirim ke email Anda");
   };
 
   return (

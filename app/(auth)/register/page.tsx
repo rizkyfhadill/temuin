@@ -46,7 +46,7 @@ export default function RegisterPage() {
       email: form.email,
       password: form.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/login`,
         data: {
           username: form.username,
           full_name: form.full_name,
@@ -57,10 +57,8 @@ export default function RegisterPage() {
     setLoading(false);
     if (error) return toast.error(error.message);
 
-    if (data.session && data.user) {
-      // Safety net: persist the profile + username immediately, even if the
-      // DB trigger hasn't fired yet. The RLS insert policy allows the user to
-      // write their own profile row (user_id = auth.uid()).
+    // Always persist the profile immediately for better UX
+    if (data.user) {
       try {
         await supabase.from("profiles").upsert(
           {
@@ -74,13 +72,11 @@ export default function RegisterPage() {
       } catch {
         /* non-fatal — the trigger handles creation */
       }
-      await refresh();
-      toast.success("Akun berhasil dibuat");
-      router.push("/dashboard");
-    } else {
-      toast.success("Cek email untuk verifikasi akun Anda");
-      router.push("/login");
     }
+
+    // Always redirect to login - never auto-login after signup
+    toast.success("Registrasi berhasil, silakan login");
+    router.push("/login");
   };
 
   return (

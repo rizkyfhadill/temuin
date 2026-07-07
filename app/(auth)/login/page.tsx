@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { toast } from "@/components/ui/toaster";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { refresh } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -22,7 +23,23 @@ export default function LoginPage() {
 
   React.useEffect(() => {
     if (!getSupabaseBrowserSafe()) setNoEnv(true);
-  }, []);
+
+    // Handle auth messages from callback
+    const message = searchParams.get("message");
+    const error = searchParams.get("error");
+
+    if (message === "password_reset_success") {
+      toast.success("Password berhasil diubah. Silakan login dengan password baru Anda.");
+    } else if (message === "email_confirmed") {
+      toast.success("Email berhasil diverifikasi. Silakan login.");
+    }
+
+    if (error === "auth_callback_failed") {
+      toast.error("Link verifikasi tidak valid atau telah kadaluarsa. Silakan coba lagi.");
+    } else if (error === "oauth_callback_failed") {
+      toast.error("Login dengan Google gagal. Silakan coba lagi.");
+    }
+  }, [searchParams]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
