@@ -15,6 +15,7 @@ import { LiveReportWatcher } from "@/components/reports/live-report-watcher";
 import { ShareButton } from "@/components/reports/share-button";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getReportById, getAiMatches, getComments } from "@/lib/data";
+import { getSupabaseServer } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 
 export async function generateMetadata({
@@ -40,6 +41,11 @@ export default async function ReportDetailPage({
   const report = await getReportById(id);
   if (!report) notFound();
 
+  const supabase = await getSupabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isGuest = !user;
   const [matches, comments] = await Promise.all([getAiMatches(id), getComments(id)]);
 
   return (
@@ -114,14 +120,18 @@ export default async function ReportDetailPage({
           </Card>
 
           <Card className="flex items-center gap-3 p-5">
-            <Avatar src={report.author?.avatar_url} name={report.author?.username} size={44} />
+            <Avatar
+              src={report.author?.avatar_url}
+              name={report.author?.full_name || report.author?.username || "Pengguna"}
+              size={44}
+            />
             <div className="min-w-0">
               <p className="flex items-center gap-1 font-semibold">
-                @{report.author?.username}
+                {report.author?.full_name ? report.author.full_name : `@${report.author?.username ?? "pengguna"}`}
                 {report.author?.verified && <BadgeCheck className="size-4 text-primary" />}
               </p>
               <p className="text-xs text-muted-foreground">
-                {report.author?.verified ? "Pengguna Terverifikasi" : "Pengguna Temuin"}
+                {report.author?.username ? `@${report.author.username}` : "Pengguna Temuin"}
               </p>
             </div>
           </Card>

@@ -4,7 +4,7 @@ import * as React from "react";
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import { LoginMessage } from "@/components/auth/login-message";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { refresh } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -27,6 +28,19 @@ export default function LoginPage() {
     if (!getSupabaseBrowserSafe()) setNoEnv(true);
   }, []);
 
+  const nextPath = searchParams.get("next") || "/dashboard";
+
+  React.useEffect(() => {
+    const supabase = getSupabaseBrowserSafe();
+    if (!supabase) return;
+    void (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        router.replace(nextPath);
+      }
+    })();
+  }, [nextPath, router]);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const supabase = getSupabaseBrowserSafe();
@@ -37,15 +51,13 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) return toast.error(error.message);
-    
-    // Get current user and check role
+
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     if (!currentUser) {
       toast.error("Login gagal. Silakan coba lagi.");
       return;
     }
 
-    // Load user profile to check role
     const { data: userProfile } = await supabase
       .from("profiles")
       .select("role")
@@ -55,11 +67,10 @@ export default function LoginPage() {
     await refresh();
     toast.success("Masuk berhasil");
 
-    // Redirect based on role
     if (userProfile?.role === "admin") {
       router.push("/admin");
     } else {
-      router.push("/dashboard");
+      router.push(nextPath === "/login" || nextPath === "/register" ? "/dashboard" : nextPath);
     }
     router.refresh();
   };

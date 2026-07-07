@@ -71,6 +71,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirect);
   }
 
+  if (pathname === "/reports/new" && !user) {
+    const redirect = request.nextUrl.clone();
+    redirect.pathname = "/login";
+    redirect.searchParams.set("next", pathname);
+    return NextResponse.redirect(redirect);
+  }
+
   if (isAdmin) {
     if (!user) {
       const redirect = request.nextUrl.clone();
@@ -100,6 +107,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
+    "/reports/new",
     "/login",
     "/register",
     "/forgot",

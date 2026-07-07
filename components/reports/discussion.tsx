@@ -25,11 +25,11 @@ export function Discussion({
   initialComments: CommentRow[];
   locked: boolean;
 }) {
-  const { user, profile, role } = useAuth();
+  const { user, profile, role, loading } = useAuth();
   const [comments, setComments] = React.useState<CommentRow[]>(initialComments);
   const [body, setBody] = React.useState("");
   const [posting, setPosting] = React.useState(false);
-  const guest = role === "guest";
+  const guest = !user && !loading;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,10 +122,16 @@ export function Discussion({
         )}
         {comments.map((c) => (
           <div key={c.id} className="flex gap-3">
-            <Avatar src={c.author?.avatar_url} name={c.author?.username} size={36} />
+            <Avatar
+              src={c.author?.avatar_url}
+              name={c.author?.full_name || c.author?.username || c.user_id}
+              size={36}
+            />
             <div className="flex-1 rounded-lg border border-border bg-background p-3">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold">@{c.author?.username}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-semibold">
+                  {c.author?.full_name ? c.author.full_name : `@${c.author?.username ?? c.user_id}`}
+                </span>
                 {c.author?.verified && <span className="text-xs text-primary">✓</span>}
                 <span className="text-xs text-muted-foreground">{formatDateTime(c.created_at)}</span>
               </div>

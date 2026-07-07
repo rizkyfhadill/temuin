@@ -11,7 +11,7 @@ import { toast } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 
 export function UserNav() {
-  const { profile, role, refresh } = useAuth();
+  const { user, profile, role, refresh } = useAuth();
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
@@ -44,7 +44,8 @@ export function UserNav() {
     }
   };
 
-  const name = profile?.full_name || profile?.username || "Pengguna";
+  const name = profile?.full_name || profile?.username || user?.user_metadata?.full_name || user?.email || "Pengguna";
+  const username = profile?.username || (user?.user_metadata?.username as string | undefined) || user?.email?.split("@")[0] || "pengguna";
   const items = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/dashboard/my-reports", label: "Laporan Saya", icon: UserIcon },
@@ -60,17 +61,17 @@ export function UserNav() {
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 rounded-full border border-border bg-background p-0.5 pr-2 hover:bg-accent"
       >
-        <Avatar src={profile?.avatar_url} name={name} size={30} />
-        <span className="hidden text-sm font-medium sm:inline">{profile?.username}</span>
+        <Avatar src={profile?.avatar_url || (user?.user_metadata?.avatar_url as string | undefined)} name={name} size={30} />
+        <span className="hidden text-sm font-medium sm:inline">{username}</span>
       </button>
 
       {open && (
         <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-card shadow-soft animate-fade-in">
           <div className="flex items-center gap-3 border-b border-border p-3">
-            <Avatar src={profile?.avatar_url} name={name} size={40} />
+            <Avatar src={profile?.avatar_url || (user?.user_metadata?.avatar_url as string | undefined)} name={name} size={40} />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">{name}</p>
-              <p className="truncate text-xs text-muted-foreground">@{profile?.username}</p>
+              <p className="truncate text-xs text-muted-foreground">@{username}</p>
             </div>
           </div>
           <div className="p-1.5">

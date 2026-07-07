@@ -101,7 +101,7 @@ export function ReportActions({
     <div className="flex flex-wrap gap-3">
       <Button onClick={startChat} disabled={busy || (isOwner ? true : false)} className="flex-1 sm:flex-none">
         {busy ? <Loader2 className="size-4 animate-spin" /> : <MessageSquare className="size-4" />}
-        {guest ? "💬 Kirim Pesan" : isOwner ? "Ini laporan Anda" : "💬 Kirim Pesan"}
+        {guest ? "Masuk untuk Berdiskusi" : isOwner ? "Ini laporan Anda" : "💬 Kirim Pesan"}
       </Button>
 
       <Button variant="outline" onClick={toggleBookmark} disabled={busy || guest} className={cn(bookmarked && "text-primary")}>

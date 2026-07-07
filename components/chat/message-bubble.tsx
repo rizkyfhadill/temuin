@@ -40,11 +40,21 @@ export function MessageBubble({
 
   return (
     <div className={cn("group flex gap-2", isOwn ? "justify-end" : "justify-start")}>
-      {!isOwn && <Avatar src={otherAvatar} name="?" size={28} className="mt-auto" />}
+      {!isOwn && (
+        <div className="flex flex-col items-center gap-1 text-[10px] text-muted-foreground">
+          <Avatar
+            src={otherAvatar}
+            name={message.sender?.full_name || message.sender?.username || "Pengguna"}
+            size={28}
+            className="mt-auto"
+          />
+          <span className="truncate">@{message.sender?.username || message.sender?.full_name || "pengguna"}</span>
+        </div>
+      )}
       <div className={cn("relative max-w-[78%]", isOwn && "items-end")}>
         {message.replyToMessage && !message.replyToMessage.deleted && (
           <div className="mb-1 rounded-lg border-l-2 border-primary/50 bg-muted/60 px-2 py-1 text-xs text-muted-foreground">
-            @{message.replyToMessage.sender?.username}: {message.replyToMessage.body?.slice(0, 60)}
+            @{message.replyToMessage.sender?.username || message.replyToMessage.sender?.full_name || "pengguna"}: {message.replyToMessage.body?.slice(0, 60)}
           </div>
         )}
         <div

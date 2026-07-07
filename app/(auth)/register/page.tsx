@@ -24,6 +24,17 @@ export default function RegisterPage() {
     if (!getSupabaseBrowserSafe()) setNoEnv(true);
   }, []);
 
+  React.useEffect(() => {
+    const supabase = getSupabaseBrowserSafe();
+    if (!supabase) return;
+    void (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        router.replace("/dashboard");
+      }
+    })();
+  }, [router]);
+
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 

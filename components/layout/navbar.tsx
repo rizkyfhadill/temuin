@@ -21,7 +21,7 @@ const NAV = [
 ];
 
 export function Navbar() {
-  const { role, loading, ready } = useAuth();
+  const { user, role, loading, ready } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
@@ -33,8 +33,8 @@ export function Navbar() {
     setOpen(false);
   };
 
-  // Don't show user-specific UI until auth is ready and loaded
-  const isLoggedIn = !loading && ready && role !== "guest";
+  const isLoggedIn = !!user;
+  const showGuestActions = ready && !loading && !user;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/80 backdrop-blur-xl">
@@ -79,7 +79,7 @@ export function Navbar() {
 
           {isLoggedIn ? (
             <UserNav />
-          ) : !loading && ready ? (
+          ) : showGuestActions ? (
             <div className="hidden items-center gap-2 sm:flex">
               <Button asChild variant="ghost" size="sm">
                 <Link href="/login">Masuk</Link>

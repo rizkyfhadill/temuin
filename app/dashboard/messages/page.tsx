@@ -26,6 +26,21 @@ interface RoomView {
   last_message_at: string | null;
 }
 
+const EMPTY_PROFILE: Profile = {
+  id: "",
+  username: "Pengguna",
+  full_name: null,
+  avatar_url: null,
+  role: "user",
+  city: null,
+  bio: null,
+  verified: false,
+  suspended: false,
+  points: 0,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+
 function MessagesInner() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -64,11 +79,18 @@ function MessagesInner() {
         .or(`user_a.eq.${myId},user_b.eq.${myId}`)
         .order("last_message_at", { ascending: false, nullsFirst: false });
       const list: RoomView[] = (data ?? []).map((r: any) => {
-        const other = r.user_a === myId ? r.profile_b : r.profile_a;
+        const otherUserId = r.user_a === myId ? r.user_b : r.user_a;
+        const other = (r.user_a === myId ? r.profile_b : r.profile_a) as Profile | null;
         return {
           id: r.id,
           report_id: r.report_id,
-          other: other as Profile,
+          other:
+            other ?? {
+              ...EMPTY_PROFILE,
+              id: otherUserId,
+              username: otherUserId,
+              full_name: null,
+            },
           last_message: r.last_message,
           last_message_at: r.last_message_at,
         };
