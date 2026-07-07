@@ -220,18 +220,18 @@ function MessagesInner() {
   const filtered = search ? messages.filter((m) => m.body?.toLowerCase().includes(search.toLowerCase())) : messages;
 
   return (
-    <div className="grid h-[calc(100vh-9rem)] overflow-hidden rounded-xl border border-border bg-card lg:grid-cols-[320px_1fr]">
+    <div className="grid h-[calc(100vh-7rem)] sm:h-[calc(100vh-8rem)] overflow-hidden rounded-lg sm:rounded-xl border border-border bg-card lg:grid-cols-[280px_1fr]">
       {/* Conversation list */}
       <div className={cn("flex flex-col border-r border-border", activeId && "hidden lg:flex")}>
-        <div className="border-b border-border p-3">
+        <div className="border-b border-border p-2 sm:p-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Cari percakapan…" className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Cari…" className="pl-9 text-sm" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto scroll-thin">
           {loadingRooms ? (
-            <p className="p-4 text-sm text-muted-foreground">Memuat…</p>
+            <p className="p-3 sm:p-4 text-xs sm:text-sm text-muted-foreground">Memuat…</p>
           ) : rooms.length === 0 ? (
             <EmptyConversations />
           ) : (
@@ -244,16 +244,16 @@ function MessagesInner() {
                   router.replace(`/dashboard/messages?room=${r.id}`);
                 }}
                 className={cn(
-                  "flex w-full items-center gap-3 border-b border-border p-3 text-left transition-colors hover:bg-accent",
+                  "flex w-full items-center gap-2 sm:gap-3 border-b border-border p-2 sm:p-3 text-left transition-colors hover:bg-accent",
                   r.id === activeId && "bg-accent"
                 )}
               >
-                <Avatar src={r.other.avatar_url} name={r.other.username} size={42} />
+                <Avatar src={r.other.avatar_url} name={r.other.username} size={36} className="flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">@{r.other.username}</p>
-                  <p className="truncate text-xs text-muted-foreground">{r.last_message || "Belum ada pesan"}</p>
+                  <p className="truncate text-xs sm:text-sm font-semibold">@{r.other.username}</p>
+                  <p className="truncate text-[10px] sm:text-xs text-muted-foreground">{r.last_message || "Belum ada pesan"}</p>
                 </div>
-                {r.last_message_at && <span className="text-[10px] text-muted-foreground">{timeAgo(r.last_message_at)}</span>}
+                {r.last_message_at && <span className="text-[8px] sm:text-[10px] text-muted-foreground flex-shrink-0">{timeAgo(r.last_message_at)}</span>}
               </button>
             ))
           )}
@@ -263,26 +263,26 @@ function MessagesInner() {
       {/* Chat window */}
       {activeRoom ? (
         <div className={cn("flex flex-col", !activeId && "hidden lg:flex")}>
-          <div className="flex items-center gap-3 border-b border-border p-3">
-            <button className="lg:hidden" onClick={() => setActiveId(null)} aria-label="Kembali">
-              <ArrowLeft className="size-5" />
+          <div className="flex items-center gap-2 sm:gap-3 border-b border-border p-2 sm:p-3">
+            <button className="lg:hidden flex-shrink-0" onClick={() => setActiveId(null)} aria-label="Kembali">
+              <ArrowLeft className="size-4 sm:size-5" />
             </button>
-            <Avatar src={activeRoom.other.avatar_url} name={activeRoom.other.username} size={38} />
+            <Avatar src={activeRoom.other.avatar_url} name={activeRoom.other.username} size={32} className="flex-shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold">@{activeRoom.other.username}</p>
-              <p className="text-xs text-muted-foreground">{typing ? "sedang mengetik…" : "Pesan aman di Temuin"}</p>
+              <p className="truncate text-xs sm:text-sm font-semibold">@{activeRoom.other.username}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{typing ? "sedang mengetik…" : "Pesan aman di Temuin"}</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setAiOpen((v) => !v)} title="AI Assistant"><Sparkles className="size-4 text-primary" /></Button>
-            <Button variant="ghost" size="icon" onClick={() => setTrackOpen(true)} title="Live Tracking"><MapPin className="size-4 text-primary" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => setAiOpen((v) => !v)} title="AI Assistant" className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0"><Sparkles className="size-4 text-primary" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => setTrackOpen(true)} title="Live Tracking" className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0"><MapPin className="size-4 text-primary" /></Button>
           </div>
 
           {aiOpen && (
-            <div className="border-b border-border bg-primary/5 p-3 text-sm">
-              <p className="font-medium text-primary">AI Safety Assistant</p>
-              <p className="mt-1 text-muted-foreground">
+            <div className="border-b border-border bg-primary/5 p-2 sm:p-3 text-xs sm:text-sm">
+              <p className="font-medium text-primary text-xs sm:text-sm">AI Safety Assistant</p>
+              <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
                 Tips: minta penemu menjelaskan ciri khusus barang, dan lakukan serah terima di tempat umum yang aman.
               </p>
-              <Button size="sm" variant="outline" className="mt-2" onClick={async () => {
+              <Button size="sm" variant="outline" className="mt-2 text-xs" onClick={async () => {
                 const res = await fetch("/api/ai/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: "apakah laporan ini kemungkinan cocok?" }) });
                 const j = await res.json();
                 setAiAnswer(j.answer);
@@ -291,13 +291,13 @@ function MessagesInner() {
             </div>
           )}
 
-          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto scroll-thin p-4">
+          <div ref={scrollRef} className="flex-1 space-y-2 sm:space-y-3 overflow-y-auto scroll-thin p-2 sm:p-4">
             {loadingMsgs ? (
-              <div className="grid h-full place-items-center text-muted-foreground"><Loader2 className="size-5 animate-spin" /></div>
+              <div className="grid h-full place-items-center text-muted-foreground"><Loader2 className="size-4 sm:size-5 animate-spin" /></div>
             ) : filtered.length === 0 ? (
-              <div className="grid h-full place-items-center text-center text-sm text-muted-foreground">
+              <div className="grid h-full place-items-center text-center text-xs sm:text-sm text-muted-foreground">
                 <div>
-                  <MessageSquare className="mx-auto mb-2 size-8" />
+                  <MessageSquare className="mx-auto mb-2 size-6 sm:size-8" />
                   Mulai percakapan dengan @{activeRoom.other.username}
                 </div>
               </div>

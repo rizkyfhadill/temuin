@@ -22,25 +22,25 @@ export function StatsSection({ stats }: { stats: Stats }) {
   ];
 
   return (
-    <section id="statistik" className="scroll-mt-20 border-b border-border bg-card/40 py-16 md:py-20">
+    <section id="statistik" className="scroll-mt-20 border-b border-border bg-card/40 py-12 sm:py-16 md:py-20">
       <div className="container">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Dampak Temuin</h2>
-          <p className="mt-3 text-muted-foreground">
+        <div className="mx-auto max-w-2xl text-center px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight md:text-4xl">Dampak Temuin</h2>
+          <p className="mt-2 sm:mt-3 text-sm sm:text-base text-muted-foreground">
             Bersama komunitas, kita kembalikan barang berharga ke pemiliknya.
           </p>
         </div>
-        <RevealGroup className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6" stagger={0.06}>
+        <RevealGroup className="mt-8 sm:mt-12 grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-6 px-2 sm:px-0" stagger={0.06}>
           {items.map((it) => (
             <RevealItem key={it.label}>
-              <div className="group h-full rounded-xl border border-border bg-background p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-soft">
-                <div className="mx-auto grid size-10 place-items-center rounded-lg bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
-                  <it.icon className="size-5" />
+              <div className="group h-full rounded-lg sm:rounded-xl border border-border bg-background p-3 sm:p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-soft">
+                <div className="mx-auto grid size-8 sm:size-10 place-items-center rounded-lg bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+                  <it.icon className="size-4 sm:size-5" />
                 </div>
-                <p className="mt-3 text-2xl font-extrabold tabular-nums">
+                <p className="mt-2 sm:mt-3 text-lg sm:text-2xl font-extrabold tabular-nums">
                   {new Intl.NumberFormat("id-ID", { notation: "compact" }).format(it.value)}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">{it.label}</p>
+                <p className="mt-0.5 sm:mt-1 text-xs text-muted-foreground">{it.label}</p>
               </div>
             </RevealItem>
           ))}

@@ -49,7 +49,7 @@ export default async function ReportDetailPage({
   const [matches, comments] = await Promise.all([getAiMatches(id), getComments(id)]);
 
   return (
-    <div className="container py-8">
+    <div className="container py-4 sm:py-8">
       <LiveReportWatcher reportId={id} />
       <JsonLd
         data={{
@@ -64,13 +64,13 @@ export default async function ReportDetailPage({
           offers: { "@type": "Offer", price: "0", priceCurrency: "IDR", availability: "https://schema.org/InStock" },
         }}
       />
-      <Link href="/reports" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" /> Kembali ke pencarian
+      <Link href="/reports" className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-3 sm:size-4" /> Kembali ke pencarian
       </Link>
 
-      <div className="mt-5 grid gap-8 lg:grid-cols-3">
+      <div className="mt-4 sm:mt-5 grid gap-4 sm:gap-8 lg:grid-cols-3">
         {/* Main column */}
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-4 sm:space-y-6 lg:col-span-2">
           <Card className="overflow-hidden">
             <div className="relative aspect-[16/10] w-full bg-muted">
               {report.image_url ? (
@@ -83,18 +83,18 @@ export default async function ReportDetailPage({
                   priority
                 />
               ) : (
-                <div className="grid h-full place-items-center text-muted-foreground">Tanpa foto</div>
+                <div className="grid h-full place-items-center text-muted-foreground text-sm">Tanpa foto</div>
               )}
             </div>
-            <div className="space-y-4 p-5">
+            <div className="space-y-3 sm:space-y-4 p-3 sm:p-5">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant={report.type === "lost" ? "destructive" : "success"}>
+                <Badge variant={report.type === "lost" ? "destructive" : "success"} className="text-xs sm:text-sm">
                   {report.type === "lost" ? "Barang Hilang" : "Barang Ditemukan"}
                 </Badge>
                 {report.status !== "published" && <StatusBadge status={report.status} />}
               </div>
-              <h1 className="text-2xl font-bold tracking-tight">{report.title}</h1>
-              <p className="whitespace-pre-wrap leading-relaxed text-muted-foreground">{report.description}</p>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{report.title}</h1>
+              <p className="whitespace-pre-wrap leading-relaxed text-sm text-muted-foreground">{report.description}</p>
             </div>
           </Card>
 
@@ -102,11 +102,11 @@ export default async function ReportDetailPage({
         </div>
 
         {/* Sidebar */}
-        <aside className="space-y-6">
-          <Card className="space-y-4 p-5">
+        <aside className="space-y-4 sm:space-y-6">
+          <Card className="space-y-4 p-3 sm:p-5">
             <ReportActions reportId={report.id} ownerId={report.owner_id} status={report.status} />
             <ShareButton title={report.title} url={`/reports/${report.id}`} />
-            <div className="grid grid-cols-2 gap-3 border-t border-border pt-4 text-sm">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 border-t border-border pt-3 sm:pt-4 text-xs sm:text-sm">
               {report.location && (
                 <Info icon={MapPin} label="Lokasi" value={report.location} />
               )}
@@ -119,18 +119,19 @@ export default async function ReportDetailPage({
             </div>
           </Card>
 
-          <Card className="flex items-center gap-3 p-5">
+          <Card className="flex items-center gap-3 p-3 sm:p-5">
             <Avatar
               src={report.author?.avatar_url}
               name={report.author?.full_name || report.author?.username || "Pengguna"}
-              size={44}
+              size={40}
+              className="flex-shrink-0"
             />
             <div className="min-w-0">
-              <p className="flex items-center gap-1 font-semibold">
+              <p className="flex items-center gap-1 font-semibold text-sm">
                 {report.author?.full_name ? report.author.full_name : `@${report.author?.username ?? "pengguna"}`}
-                {report.author?.verified && <BadgeCheck className="size-4 text-primary" />}
+                {report.author?.verified && <BadgeCheck className="size-4 text-primary flex-shrink-0" />}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground line-clamp-1">
                 {report.author?.username ? `@${report.author.username}` : "Pengguna Temuin"}
               </p>
             </div>
@@ -147,7 +148,7 @@ function Info({ icon: Icon, label, value }: { icon: React.ComponentType<{ classN
   return (
     <div>
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        <Icon className="size-3.5" /> {label}
+        <Icon className="size-3 sm:size-3.5 flex-shrink-0" /> {label}
       </p>
       <p className="mt-0.5 font-medium">{value}</p>
     </div>

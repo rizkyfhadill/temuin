@@ -20,12 +20,12 @@ export function Hero() {
         <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-orange-400/20 blur-3xl animate-blob [animation-delay:-12s]" />
       </div>
 
-      <div className="container grid items-center gap-12 py-20 md:grid-cols-2 md:py-28">
+      <div className="container grid items-center gap-8 py-12 sm:gap-12 sm:py-16 md:grid-cols-2 md:py-28">
         {/* Left: copy */}
         <div>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
-            <Badge variant="default" className="mb-5 gap-1.5 py-1 pl-2 pr-3">
-              <Sparkles className="size-3.5" /> Didukung AI Smart Match
+            <Badge variant="default" className="mb-4 sm:mb-5 gap-1.5 py-1 pl-2 pr-3 text-xs sm:text-sm">
+              <Sparkles className="size-3 sm:size-3.5" /> Didukung AI Smart Match
             </Badge>
           </motion.div>
 
@@ -33,7 +33,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05, ease }}
-            className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl"
+            className="text-balance text-3xl font-extrabold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
           >
             Barang hilang?{" "}
             <span className="relative inline-block bg-gradient-to-r from-primary to-rose-500 bg-clip-text text-transparent">
@@ -46,7 +46,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.12, ease }}
-            className="mt-5 max-w-lg text-lg text-muted-foreground"
+            className="mt-4 sm:mt-5 max-w-lg text-base sm:text-lg text-muted-foreground leading-relaxed"
           >
             Platform Lost &amp; Found AI pertama untuk Indonesia. Laporkan, cocokkan dengan
             cerdas, dan terhubung langsung dengan penemu — semuanya aman di dalam Temuin.
@@ -58,15 +58,15 @@ export function Hero() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.18, ease }}
-            className="mt-7 flex max-w-md items-center gap-2 rounded-xl border border-border bg-card p-1.5 shadow-soft transition-all duration-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-ring"
+            className="mt-6 sm:mt-7 flex max-w-md items-center gap-2 rounded-lg sm:rounded-xl border border-border bg-card p-1.5 shadow-soft transition-all duration-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-ring"
           >
-            <Search className="ml-2 size-5 shrink-0 text-muted-foreground" />
+            <Search className="ml-2 size-4 sm:size-5 shrink-0 text-muted-foreground" />
             <input
               name="q"
               placeholder="Cari dompet, kunci, hp…"
-              className="h-10 flex-1 bg-transparent px-1 text-sm outline-none"
+              className="h-9 sm:h-10 flex-1 bg-transparent px-1 text-sm outline-none"
             />
-            <Button type="submit" size="sm" className="shrink-0">
+            <Button type="submit" size="sm" className="shrink-0 text-xs sm:text-sm">
               Cari
             </Button>
           </motion.form>
@@ -75,14 +75,14 @@ export function Hero() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.24, ease }}
-            className="mt-7 flex flex-wrap gap-3"
+            className="mt-6 sm:mt-7 flex flex-col sm:flex-row gap-2 sm:gap-3"
           >
-            <Button asChild size="lg" className="group">
+            <Button asChild size="lg" className="group text-sm sm:text-base">
               <Link href="/reports/new">
                 Buat Laporan <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
+            <Button asChild size="lg" variant="outline" className="text-sm sm:text-base">
               <Link href="/reports">Jelajahi Laporan</Link>
             </Button>
           </motion.div>
@@ -91,13 +91,13 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.32 }}
-            className="mt-8 flex flex-wrap gap-5 text-sm text-muted-foreground"
+            className="mt-7 sm:mt-8 flex flex-wrap gap-3 sm:gap-5 text-xs sm:text-sm text-muted-foreground"
           >
             <span className="inline-flex items-center gap-2">
-              <ShieldCheck className="size-4 text-primary" /> Verifikasi Admin
+              <ShieldCheck className="size-3.5 sm:size-4 text-primary" /> Verifikasi Admin
             </span>
             <span className="inline-flex items-center gap-2">
-              <MessageSquare className="size-4 text-primary" /> Chat Aman
+              <MessageSquare className="size-3.5 sm:size-4 text-primary" /> Chat Aman
             </span>
             <span className="inline-flex items-center gap-2">
               <Sparkles className="size-4 text-primary" /> AI Match

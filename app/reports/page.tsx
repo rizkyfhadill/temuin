@@ -44,20 +44,20 @@ export default async function ReportsPage({
   // Reset to page 1 if current page is out of range
   if (currentPage > totalPages && totalPages > 0) {
     return (
-      <div className="container py-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Cari Barang</h1>
-          <p className="mt-2 text-muted-foreground">Halaman tidak ditemukan.</p>
+      <div className="container py-6 sm:py-10">
+        <div className="mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Cari Barang</h1>
+          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">Halaman tidak ditemukan.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Cari Barang</h1>
-        <p className="mt-2 text-muted-foreground">
+    <div className="container py-6 sm:py-10">
+      <div className="mb-4 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Cari Barang</h1>
+        <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">
           Temukan barang hilang atau ditemukan. {totalCount} laporan ditemukan.
         </p>
       </div>
@@ -68,7 +68,7 @@ export default async function ReportsPage({
 
       {reports.length > 0 ? (
         <>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="mt-6 sm:mt-8 grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {reports.map((r) => (
               <ReportCard key={r.id} report={r} />
             ))}

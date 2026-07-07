@@ -94,42 +94,42 @@ function LoginForm() {
       <Suspense fallback={null}>
         <LoginMessage />
       </Suspense>
-      <div className="container flex min-h-[calc(100vh-4rem)] items-center justify-center py-10">
+      <div className="container flex min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] items-center justify-center py-6 sm:py-10 px-2 sm:px-0">
         <div className="w-full max-w-sm">
-        <div className="mb-6 text-center">
+        <div className="mb-4 sm:mb-6 text-center">
           <Link href="/" className="inline-flex items-center justify-center gap-2 text-xl font-bold">
-            <Image src="/temuin-logo.png" alt="Temuin" width={40} height={40} className="size-10" />
+            <Image src="/temuin-logo.png" alt="Temuin" width={40} height={40} className="size-8 sm:size-10" />
           </Link>
-          <h1 className="mt-4 text-2xl font-bold">Masuk</h1>
-          <p className="text-sm text-muted-foreground">Selamat datang kembali di Temuin.</p>
+          <h1 className="mt-3 sm:mt-4 text-xl sm:text-2xl font-bold">Masuk</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">Selamat datang kembali di Temuin.</p>
         </div>
 
         {noEnv && (
-          <div className="mb-4 rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
+          <div className="mb-4 rounded-lg border border-warning/40 bg-warning/10 p-2 sm:p-3 text-xs text-warning">
             Supabase belum dikonfigurasi. Salin <code>.env.local.example</code> → <code>.env.local</code> dan isi
             URL &amp; anon key Supabase Anda.
           </div>
         )}
 
-        <form onSubmit={submit} className="space-y-4 rounded-xl border border-border bg-card p-6 shadow-soft">
+        <form onSubmit={submit} className="space-y-4 rounded-lg sm:rounded-xl border border-border bg-card p-4 sm:p-6 shadow-soft">
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-sm">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" placeholder="you@email.com" />
+              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9 text-sm" placeholder="you@email.com" />
             </div>
           </div>
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm">Password</Label>
               <Link href="/forgot" className="text-xs text-primary hover:underline">Lupa?</Link>
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9" placeholder="••••••••" />
+              <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9 text-sm" placeholder="••••••••" />
             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full text-sm" disabled={loading}>
             {loading && <Loader2 className="size-4 animate-spin" />} Masuk
           </Button>
         </form>
@@ -138,11 +138,11 @@ function LoginForm() {
           <span className="h-px flex-1 bg-border" /> atau <span className="h-px flex-1 bg-border" />
         </div>
 
-        <Button variant="outline" className="w-full" onClick={google} disabled={googleLoading}>
+        <Button variant="outline" className="w-full text-sm" onClick={google} disabled={googleLoading}>
           {googleLoading ? <Loader2 className="size-4 animate-spin" /> : <GoogleIcon />} Masuk dengan Google
         </Button>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+        <p className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-muted-foreground">
           Belum punya akun?{" "}
           <Link href="/register" className="font-medium text-primary hover:underline">Daftar</Link>
         </p>

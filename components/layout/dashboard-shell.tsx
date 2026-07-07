@@ -76,8 +76,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   // Show skeleton while auth is loading
   if (authLoading) {
     return (
-      <div className="container flex gap-6 py-8">
-        <aside className="hidden w-60 shrink-0 lg:block">
+      <div className="container flex flex-col lg:flex-row gap-4 lg:gap-6 py-4 sm:py-6 lg:py-8">
+        <aside className="hidden w-full lg:w-60 shrink-0 lg:block">
           <div className="sticky top-20 space-y-4">
             <div className="rounded-xl border border-border bg-card p-4">
               <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
@@ -85,7 +85,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </aside>
-        <div className="min-w-0 flex-1">{children}</div>
+        <div className="min-w-0 flex-1 px-2 sm:px-0">{children}</div>
         <div className="h-16 lg:hidden" />
       </div>
     );
@@ -94,8 +94,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const displayName = profile?.full_name || profile?.username || "Pengguna";
 
   return (
-    <div className="container flex gap-6 py-8">
-      <aside className="hidden w-60 shrink-0 lg:block">
+    <div className="container flex flex-col lg:flex-row gap-4 lg:gap-6 py-4 sm:py-6 lg:py-8">
+      <aside className="hidden w-full lg:w-60 shrink-0 lg:block">
         <div className="sticky top-20 space-y-4">
           <div className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">Masuk sebagai</p>
@@ -113,7 +113,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="min-w-0 flex-1 px-2 sm:px-0">{children}</div>
 
       {/* Mobile bottom nav */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur lg:hidden">

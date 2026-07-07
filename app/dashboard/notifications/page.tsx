@@ -80,21 +80,21 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Notifikasi</h1>
-        <Button variant="outline" size="sm" onClick={markAll}><CheckCheck className="size-4" /> Tandai Semua Dibaca</Button>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Notifikasi</h1>
+        <Button variant="outline" size="sm" onClick={markAll} className="w-full sm:w-auto text-xs sm:text-sm"><CheckCheck className="size-3 sm:size-4" /> Tandai Semua Dibaca</Button>
       </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Memuat…</p>
+        <p className="text-xs sm:text-sm text-muted-foreground">Memuat…</p>
       ) : items.length === 0 ? (
-        <Card className="border-dashed p-10 text-center">
-          <Bell className="mx-auto mb-3 size-8 text-muted-foreground" />
-          <p className="font-medium">Tidak ada notifikasi</p>
+        <Card className="border-dashed p-6 sm:p-10 text-center">
+          <Bell className="mx-auto mb-2 sm:mb-3 size-6 sm:size-8 text-muted-foreground" />
+          <p className="font-medium text-sm sm:text-base">Tidak ada notifikasi</p>
         </Card>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1.5 sm:space-y-2">
           {items.map((n) => {
             const Icon = ICONS[n.type] ?? Bell;
             return (
@@ -102,19 +102,19 @@ export default function NotificationsPage() {
                 key={n.id}
                 onClick={() => open(n)}
                 className={cn(
-                  "flex w-full items-start gap-3 rounded-xl border border-border p-4 text-left transition-colors hover:bg-accent",
+                  "flex w-full items-start gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-border p-3 sm:p-4 text-left transition-colors hover:bg-accent",
                   !n.read && "bg-primary/5"
                 )}
               >
-                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                  <Icon className="size-4" />
+                <span className="grid size-8 sm:size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                  <Icon className="size-3.5 sm:size-4" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{n.title}</p>
-                  <p className="text-sm text-muted-foreground">{n.body}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(n.created_at)}</p>
+                  <p className="text-xs sm:text-sm font-medium">{n.title}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">{n.body}</p>
+                  <p className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground">{timeAgo(n.created_at)}</p>
                 </div>
-                {!n.read && <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />}
+                {!n.read && <span className="mt-1 size-2 shrink-0 rounded-full bg-primary flex-shrink-0" />}
               </button>
             );
           })}

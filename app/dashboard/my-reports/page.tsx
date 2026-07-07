@@ -77,10 +77,10 @@ export default function MyReportsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Laporan Saya</h1>
-        <Button asChild>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Laporan Saya</h1>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/reports/new"><Plus className="size-4" /> Buat</Link>
         </Button>
       </div>
@@ -88,14 +88,14 @@ export default function MyReportsPage() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Memuat…</p>
       ) : reports.length === 0 ? (
-        <Card className="border-dashed p-10 text-center">
-          <p className="font-medium">Belum ada laporan</p>
+        <Card className="border-dashed p-6 sm:p-10 text-center">
+          <p className="font-medium text-sm sm:text-base">Belum ada laporan</p>
           <Button asChild className="mt-4"><Link href="/reports/new">Buat Laporan</Link></Button>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {reports.map((r) => (
-            <Card key={r.id} className="flex flex-wrap items-center gap-4 p-4">
+            <Card key={r.id} className="flex flex-col gap-3 p-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:p-4">
               <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {r.image_url && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -103,19 +103,19 @@ export default function MyReportsPage() {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <Link href={`/reports/${r.id}`} className="font-semibold hover:underline">{r.title}</Link>
+                <Link href={`/reports/${r.id}`} className="font-semibold text-sm sm:text-base hover:underline line-clamp-1">{r.title}</Link>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <StatusBadge status={r.status} />
-                  <span>{r.category_name}</span>
+                  <span className="line-clamp-1">{r.category_name}</span>
                   <span>•</span>
-                  <span>{r.location}</span>
+                  <span className="line-clamp-1">{r.location}</span>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setEditing(r)}>
+              <div className="flex w-full gap-2 sm:w-auto">
+                <Button variant="outline" size="sm" onClick={() => setEditing(r)} className="flex-1 sm:flex-none">
                   <Pencil className="size-3.5" /> Edit
                 </Button>
-                <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => del(r.id)}>
+                <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:bg-destructive/10 sm:flex-none" onClick={() => del(r.id)}>
                   <Trash2 className="size-3.5" />
                 </Button>
               </div>
@@ -126,29 +126,29 @@ export default function MyReportsPage() {
 
       <Dialog open={!!editing} onClose={() => setEditing(null)}>
         {editing && (
-          <div className="space-y-4 p-6">
-            <h2 className="text-lg font-semibold">Edit Laporan</h2>
+          <div className="space-y-4 p-4 sm:p-6">
+            <h2 className="text-base sm:text-lg font-semibold">Edit Laporan</h2>
             <div className="space-y-1.5">
-              <Label>Nama Barang</Label>
-              <Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
+              <Label className="text-sm">Nama Barang</Label>
+              <Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} className="text-sm" />
             </div>
             <div className="space-y-1.5">
-              <Label>Deskripsi</Label>
-              <Textarea rows={4} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
+              <Label className="text-sm">Deskripsi</Label>
+              <Textarea rows={4} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className="text-sm" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Lokasi</Label>
-                <Input value={editing.location ?? ""} onChange={(e) => setEditing({ ...editing, location: e.target.value })} />
+                <Label className="text-sm">Lokasi</Label>
+                <Input value={editing.location ?? ""} onChange={(e) => setEditing({ ...editing, location: e.target.value })} className="text-sm" />
               </div>
               <div className="space-y-1.5">
-                <Label>Warna</Label>
-                <Input value={editing.color ?? ""} onChange={(e) => setEditing({ ...editing, color: e.target.value })} />
+                <Label className="text-sm">Warna</Label>
+                <Input value={editing.color ?? ""} onChange={(e) => setEditing({ ...editing, color: e.target.value })} className="text-sm" />
               </div>
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setEditing(null)}>Batal</Button>
-              <Button onClick={save} disabled={saving}>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button variant="ghost" onClick={() => setEditing(null)} className="w-full sm:w-auto">Batal</Button>
+              <Button onClick={save} disabled={saving} className="w-full sm:w-auto">
                 {saving && <Loader2 className="size-4 animate-spin" />} Simpan
               </Button>
             </div>

@@ -95,65 +95,65 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="container flex min-h-[calc(100vh-4rem)] items-center justify-center py-10">
+    <div className="container flex min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] items-center justify-center py-6 sm:py-10 px-2 sm:px-0">
       <div className="w-full max-w-sm">
-        <div className="mb-6 text-center">
+        <div className="mb-4 sm:mb-6 text-center">
           <Link href="/" className="inline-flex items-center justify-center gap-2 text-xl font-bold">
-            <Image src="/temuin-logo.png" alt="Temuin" width={40} height={40} className="size-10" />
+            <Image src="/temuin-logo.png" alt="Temuin" width={40} height={40} className="size-8 sm:size-10" />
           </Link>
-          <h1 className="mt-4 text-2xl font-bold">Daftar</h1>
-          <p className="text-sm text-muted-foreground">Buat akun untuk mulai melaporkan barang.</p>
+          <h1 className="mt-3 sm:mt-4 text-xl sm:text-2xl font-bold">Daftar</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">Buat akun untuk mulai melaporkan barang.</p>
         </div>
 
         {noEnv && (
-          <div className="mb-4 rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
+          <div className="mb-4 rounded-lg border border-warning/40 bg-warning/10 p-2 sm:p-3 text-xs text-warning">
             Supabase belum dikonfigurasi. Salin <code>.env.local.example</code> → <code>.env.local</code> dan isi
             URL &amp; anon key Supabase Anda.
           </div>
         )}
 
-        <form onSubmit={submit} className="space-y-4 rounded-xl border border-border bg-card p-6 shadow-soft">
+        <form onSubmit={submit} className="space-y-3 sm:space-y-4 rounded-lg sm:rounded-xl border border-border bg-card p-4 sm:p-6 shadow-soft">
           <div className="space-y-1.5">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="username" className="text-sm">Username</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="username" value={form.username} onChange={set("username")} className="pl-9" placeholder="username" />
+              <Input id="username" value={form.username} onChange={set("username")} className="pl-9 text-sm" placeholder="username" />
             </div>
             {errors.username && <p className="text-xs text-destructive">{errors.username}</p>}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="full_name">Nama Lengkap</Label>
-            <Input id="full_name" value={form.full_name} onChange={set("full_name")} placeholder="Budi Santoso" />
+            <Label htmlFor="full_name" className="text-sm">Nama Lengkap</Label>
+            <Input id="full_name" value={form.full_name} onChange={set("full_name")} className="text-sm" placeholder="Budi Santoso" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-sm">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="email" type="email" value={form.email} onChange={set("email")} className="pl-9" placeholder="you@email.com" />
+              <Input id="email" type="email" value={form.email} onChange={set("email")} className="pl-9 text-sm" placeholder="you@email.com" />
             </div>
             {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="city">Kota</Label>
-            <Input id="city" value={form.city} onChange={set("city")} placeholder="Jakarta" />
+            <Label htmlFor="city" className="text-sm">Kota</Label>
+            <Input id="city" value={form.city} onChange={set("city")} className="text-sm" placeholder="Jakarta" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-sm">Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="password" type="password" value={form.password} onChange={set("password")} className="pl-9" placeholder="Minimal 6 karakter" />
+              <Input id="password" type="password" value={form.password} onChange={set("password")} className="pl-9 text-sm" placeholder="Minimal 6 karakter" />
             </div>
             {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="confirm">Konfirmasi Password</Label>
+            <Label htmlFor="confirm" className="text-sm">Konfirmasi Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="confirm" type="password" value={form.confirm} onChange={set("confirm")} className="pl-9" placeholder="Ulangi password" />
+              <Input id="confirm" type="password" value={form.confirm} onChange={set("confirm")} className="pl-9 text-sm" placeholder="Ulangi password" />
             </div>
             {errors.confirm && <p className="text-xs text-destructive">{errors.confirm}</p>}
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full text-sm" disabled={loading}>
             {loading && <Loader2 className="size-4 animate-spin" />} Daftar
           </Button>
         </form>

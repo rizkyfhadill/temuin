@@ -38,18 +38,18 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/80 backdrop-blur-xl">
-      <div className="container flex h-16 items-center gap-3">
-        <Link href="/" className="flex items-center gap-2 font-bold">
-          <Image src="/temuin-logo.png" alt="Temuin" width={40} height={40} className="size-10" />
+      <div className="container flex h-14 sm:h-16 items-center gap-2 sm:gap-3">
+        <Link href="/" className="flex items-center gap-2 font-bold flex-shrink-0">
+          <Image src="/temuin-logo.png" alt="Temuin" width={40} height={40} className="size-8 sm:size-10" />
         </Link>
 
-        <nav className="ml-4 hidden items-center gap-1 md:flex">
+        <nav className="ml-3 sm:ml-4 hidden items-center gap-0.5 md:flex">
             {NAV.map((n) => (
               <Link
                 key={n.href}
                 href={n.href}
                 className={cn(
-                  "link-underline rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                  "link-underline rounded-md px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
                   pathname === n.href && "text-foreground"
                 )}
               >
@@ -58,46 +58,46 @@ export function Navbar() {
             ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <form onSubmit={submitSearch} className="relative hidden lg:block">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Cari barang hilang…"
-              className="h-9 w-56 rounded-lg border border-input bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-9 w-48 lg:w-56 rounded-lg border border-input bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </form>
 
           <ThemeToggle />
 
           {isLoggedIn && (
-            <Link href="/dashboard/notifications" aria-label="Notifikasi" className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background hover:bg-accent">
-              <Bell className="size-[18px]" />
+            <Link href="/dashboard/notifications" aria-label="Notifikasi" className="relative inline-flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-lg border border-border bg-background hover:bg-accent">
+              <Bell className="size-4 sm:size-[18px]" />
             </Link>
           )}
 
           {isLoggedIn ? (
             <UserNav />
           ) : showGuestActions ? (
-            <div className="hidden items-center gap-2 sm:flex">
-              <Button asChild variant="ghost" size="sm">
+            <div className="hidden items-center gap-1 sm:gap-2 sm:flex">
+              <Button asChild variant="ghost" size="sm" className="text-xs sm:text-sm">
                 <Link href="/login">Masuk</Link>
               </Button>
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="text-xs sm:text-sm">
                 <Link href="/register">Daftar</Link>
               </Button>
             </div>
           ) : null}
 
-          <Button asChild size="sm" className="hidden sm:inline-flex">
+          <Button asChild size="sm" className="hidden sm:inline-flex text-xs sm:text-sm">
             <Link href={isLoggedIn ? "/reports/new" : "/login"}>
               <Plus className="size-4" /> Lapor
             </Link>
           </Button>
 
           <button
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border md:hidden"
+            className="inline-flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-lg border border-border md:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label="Menu"
           >
