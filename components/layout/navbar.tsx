@@ -20,7 +20,7 @@ const NAV = [
 ];
 
 export function Navbar() {
-  const { role, loading } = useAuth();
+  const { role, loading, ready } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
@@ -31,6 +31,9 @@ export function Navbar() {
     router.push(`/reports?q=${encodeURIComponent(q)}`);
     setOpen(false);
   };
+
+  // Don't show user-specific UI until auth is ready and loaded
+  const isLoggedIn = !loading && ready && role !== "guest";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/80 backdrop-blur-xl">
@@ -70,15 +73,15 @@ export function Navbar() {
 
           <ThemeToggle />
 
-          {!loading && role !== "guest" && (
+          {isLoggedIn && (
             <Link href="/dashboard/notifications" aria-label="Notifikasi" className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background hover:bg-accent">
               <Bell className="size-[18px]" />
             </Link>
           )}
 
-          {!loading && role !== "guest" ? (
+          {isLoggedIn ? (
             <UserNav />
-          ) : (
+          ) : !loading && ready ? (
             <div className="hidden items-center gap-2 sm:flex">
               <Button asChild variant="ghost" size="sm">
                 <Link href="/login">Masuk</Link>
@@ -87,10 +90,10 @@ export function Navbar() {
                 <Link href="/register">Daftar</Link>
               </Button>
             </div>
-          )}
+          ) : null}
 
           <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link href={role !== "guest" ? "/reports/new" : "/login"}>
+            <Link href={isLoggedIn ? "/reports/new" : "/login"}>
               <Plus className="size-4" /> Lapor
             </Link>
           </Button>
@@ -128,7 +131,7 @@ export function Navbar() {
               </Link>
             ))}
             <Link
-              href={role !== "guest" ? "/reports/new" : "/login"}
+              href={isLoggedIn ? "/reports/new" : "/login"}
               onClick={() => setOpen(false)}
               className="mt-1 flex items-center gap-2 rounded-md bg-primary px-3 py-2.5 text-sm font-medium text-primary-foreground"
             >

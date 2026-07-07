@@ -36,9 +36,30 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) return toast.error(error.message);
+    
+    // Get current user and check role
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (!currentUser) {
+      toast.error("Login gagal. Silakan coba lagi.");
+      return;
+    }
+
+    // Load user profile to check role
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", currentUser.id)
+      .single();
+
     await refresh();
     toast.success("Masuk berhasil");
-    router.push("/dashboard");
+
+    // Redirect based on role
+    if (userProfile?.role === "admin") {
+      router.push("/admin");
+    } else {
+      router.push("/dashboard");
+    }
     router.refresh();
   };
 

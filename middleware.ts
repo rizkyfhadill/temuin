@@ -43,6 +43,20 @@ export async function middleware(request: NextRequest) {
 
   const isDashboard = pathname.startsWith("/dashboard");
   const isAdmin = pathname.startsWith("/admin");
+  const isAuthPage = pathname.startsWith("/(auth)") || pathname.startsWith("/login") || pathname.startsWith("/register") || pathname.startsWith("/forgot");
+
+  // If user is logged in and trying to access auth pages, redirect to appropriate dashboard
+  if (user && isAuthPage) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    
+    const redirect = request.nextUrl.clone();
+    redirect.pathname = profile?.role === "admin" ? "/admin" : "/dashboard";
+    return NextResponse.redirect(redirect);
+  }
 
   if (isDashboard && !user) {
     const redirect = request.nextUrl.clone();
@@ -58,12 +72,14 @@ export async function middleware(request: NextRequest) {
       redirect.searchParams.set("next", pathname);
       return NextResponse.redirect(redirect);
     }
-    const { data: profile } = await supabase
+    
+    const { data: profile, error } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
-    if (profile?.role !== "admin") {
+    
+    if (error || profile?.role !== "admin") {
       // Non-admin trying to reach admin: send to their dashboard.
       const redirect = request.nextUrl.clone();
       redirect.pathname = "/dashboard";
@@ -75,5 +91,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/login",
+    "/register",
+    "/forgot",
+    "/(auth)/:path*",
+  ],
 };
