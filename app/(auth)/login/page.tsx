@@ -14,7 +14,7 @@ import { getSupabaseBrowserSafe } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/toaster";
 import { LoginMessage } from "@/components/auth/login-message";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refresh } = useAuth();
@@ -149,6 +149,14 @@ export default function LoginPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
 
