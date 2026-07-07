@@ -22,7 +22,7 @@ export function LatestReports({ reports }: { reports: Report[] }) {
             </Link>
           </Button>
         </Reveal>
-        <Reveal className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" delay={0.05}>
+        <Reveal className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" delay={0.05}>
           {reports.map((r) => (
             <ReportCard key={r.id} report={r} />
           ))}

@@ -36,6 +36,44 @@ export interface ReportQuery {
   page?: number;
 }
 
+export async function getPublishedReportsCount(
+  opts: Omit<ReportQuery, "limit" | "page"> = {}
+): Promise<number> {
+  const { q, category, type, city } = opts;
+
+  if (!SUPABASE_LIVE) {
+    let r = [...SEED_REPORTS];
+    if (type) r = r.filter((x) => x.type === type);
+    if (category) r = r.filter((x) => x.category_name === category);
+    if (city) r = r.filter((x) => x.city === city);
+    if (q)
+      r = r.filter(
+        (x) =>
+          x.title.toLowerCase().includes(q.toLowerCase()) ||
+          x.description.toLowerCase().includes(q.toLowerCase())
+      );
+    return r.length;
+  }
+
+  try {
+    const supabase = await getSupabaseServer();
+    let query = supabase
+      .from("reports")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "published");
+
+    if (type) query = query.eq("type", type);
+    if (category) query = query.eq("categories.name", category);
+    if (city) query = query.eq("city", city);
+    if (q) query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`);
+
+    const { count } = await query;
+    return count ?? 0;
+  } catch {
+    return SEED_REPORTS.length;
+  }
+}
+
 export async function getPublishedReports(opts: ReportQuery = {}): Promise<Report[]> {
   const { q, category, type, city, limit = 12, page = 0 } = opts;
 
