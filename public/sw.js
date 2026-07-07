@@ -1,5 +1,5 @@
 // ============================================================
-// Temuin — Service Worker
+// Temuin - Service Worker
 // Provides installability + offline support:
 //  - precaches the app shell,
 //  - network-first for navigations (offline fallback page),

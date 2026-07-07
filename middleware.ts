@@ -37,6 +37,12 @@ export async function middleware(request: NextRequest) {
     },
   });
 
+  // First, try to restore session from cookies
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  // Then get current user from the restored session
   const {
     data: { user },
   } = await supabase.auth.getUser();

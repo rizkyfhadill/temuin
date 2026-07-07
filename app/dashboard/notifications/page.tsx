@@ -24,41 +24,48 @@ const ICONS: Record<NotificationType, React.ComponentType<{ className?: string }
 };
 
 export default function NotificationsPage() {
-  const { profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [items, setItems] = React.useState<AppNotification[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   const load = React.useCallback(async () => {
     const supabase = getSupabaseBrowserSafe();
-    if (!supabase || !profile) return setLoading(false);
+    const uid = user?.id ?? profile?.id;
+    if (!supabase || !uid) {
+      setLoading(false);
+      return;
+    }
     const { data } = await supabase
       .from("notifications")
       .select("*")
-      .eq("user_id", profile.id)
+      .eq("user_id", uid)
       .order("created_at", { ascending: false });
     setItems((data as AppNotification[]) ?? []);
     setLoading(false);
-  }, [profile]);
+  }, [profile, user]);
 
   React.useEffect(() => {
+    if (authLoading) return;
     load();
     const supabase = getSupabaseBrowserSafe();
-    if (!supabase || !profile) return;
+    const uid = user?.id ?? profile?.id;
+    if (!supabase || !uid) return;
     const ch = supabase
-      .channel(`notif:${profile.id}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${profile.id}` }, (payload) => {
+      .channel(`notif:${uid}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` }, (payload) => {
         setItems((m) => [payload.new as AppNotification, ...m]);
       })
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [load, profile]);
+  }, [authLoading, load, profile, user]);
 
   const markAll = async () => {
     const supabase = getSupabaseBrowserSafe();
-    if (!supabase || !profile) return;
-    await supabase.from("notifications").update({ read: true }).eq("user_id", profile.id).eq("read", false);
+    const uid = user?.id ?? profile?.id;
+    if (!supabase || !uid) return;
+    await supabase.from("notifications").update({ read: true }).eq("user_id", uid).eq("read", false);
     setItems((m) => m.map((n) => ({ ...n, read: true })));
     toast.success("Semua dibaca");
   };

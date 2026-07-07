@@ -13,31 +13,45 @@ import type { Report } from "@/lib/types";
 import { formatDateTime } from "@/lib/utils";
 
 export default function DashboardHome() {
-  const { profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [myReports, setMyReports] = React.useState<Report[]>([]);
   const [stats, setStats] = React.useState({ total: 0, returned: 0, bookmarks: 0 });
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     const supabase = getSupabaseBrowserSafe();
-    if (!supabase || !profile) {
-      setLoading(false);
+    // Wait for auth to be loaded and user to be present
+    if (authLoading || !supabase || !user) {
       return;
     }
+
+    // User is authenticated, fetch dashboard data using user.id
     (async () => {
-      const uid = profile.id;
-      const [{ data: reports }, { count: returned }, { count: bms }] = await Promise.all([
-        supabase.from("reports").select("*, categories(name)").eq("owner_id", uid).order("created_at", { ascending: false }).limit(4),
-        supabase.from("reports").select("*", { count: "exact", head: true }).eq("owner_id", uid).eq("status", "returned"),
-        supabase.from("bookmarks").select("*", { count: "exact", head: true }).eq("user_id", uid),
-      ]);
-      setMyReports(
-        (reports ?? []).map((r: any) => ({ ...r, category_name: r.categories?.name ?? null } as Report))
-      );
-      setStats({ total: reports?.length ?? 0, returned: returned ?? 0, bookmarks: bms ?? 0 });
-      setLoading(false);
+      try {
+        const uid = user.id;
+        const [reportsResult, returnedCountResult, bookmarksCountResult] = await Promise.all([
+          supabase.from("reports").select("*, categories(name)").eq("owner_id", uid).order("created_at", { ascending: false }).limit(4),
+          supabase.from("reports").select("*", { count: "exact", head: true }).eq("owner_id", uid).eq("status", "returned"),
+          supabase.from("bookmarks").select("*", { count: "exact", head: true }).eq("user_id", uid),
+        ]);
+
+        const reports = reportsResult.data ?? [];
+        const returnedCount = returnedCountResult.count ?? 0;
+        const bookmarksCount = bookmarksCountResult.count ?? 0;
+
+        setMyReports(
+          reports.map((r: any) => ({ ...r, category_name: r.categories?.name ?? null } as Report))
+        );
+        setStats({ total: reports.length, returned: returnedCount, bookmarks: bookmarksCount });
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+        setStats({ total: 0, returned: 0, bookmarks: 0 });
+        setMyReports([]);
+      } finally {
+        setLoading(false);
+      }
     })();
-  }, [profile]);
+  }, [user, authLoading]);
 
   const cards = [
     { label: "Laporan Saya", value: stats.total, icon: FileText, href: "/dashboard/my-reports" },
@@ -45,11 +59,36 @@ export default function DashboardHome() {
     { label: "Bookmark", value: stats.bookmarks, icon: Bookmark, href: "/dashboard/bookmarks" },
   ];
 
+  // Show loading skeleton while auth is still loading
+  if (authLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="h-8 w-64 animate-pulse rounded bg-muted"></div>
+            <div className="mt-2 h-4 w-48 animate-pulse rounded bg-muted"></div>
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="h-20 animate-pulse bg-muted"></Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Render dashboard with profile data
+  const displayName = profile?.username ?? "User";
+  const fullName = profile?.full_name ?? "";
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Halo, @{profile?.username} 👋</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Halo, @{displayName} 👋
+          </h1>
           <p className="text-muted-foreground">Selamat datang kembali di dashboard Temuin.</p>
         </div>
         <Button asChild>

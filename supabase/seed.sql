@@ -1,5 +1,5 @@
 -- ============================================================
--- Temuin — Seed Data (optional demo content)
+-- Temuin - Seed Data (optional demo content)
 -- NOTE: profiles are usually created automatically when a user
 -- signs up (see handle_new_user trigger). The rows below are for
 -- quick local demoing. Adjust IDs/emails to match your test users,

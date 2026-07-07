@@ -15,7 +15,7 @@ import { toast } from "@/components/ui/toaster";
 import type { Badge as BadgeType } from "@/lib/types";
 
 export default function ProfilePage() {
-  const { profile, refresh } = useAuth();
+  const { user, profile, refresh, loading: authLoading } = useAuth();
   const [form, setForm] = React.useState({ full_name: "", city: "", bio: "" });
   const [saving, setSaving] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
@@ -29,12 +29,13 @@ export default function ProfilePage() {
 
   React.useEffect(() => {
     const supabase = getSupabaseBrowserSafe();
-    if (!supabase || !profile) return;
+    const uid = user?.id ?? profile?.id;
+    if (authLoading || !supabase || !uid) return;
     (async () => {
-      const { data } = await supabase.from("user_badges").select("badges(*)").eq("user_id", profile.id);
+      const { data } = await supabase.from("user_badges").select("badges(*)").eq("user_id", uid);
       setBadges(((data ?? []) as any[]).map((r) => r.badges).filter(Boolean));
     })();
-  }, [profile]);
+  }, [authLoading, profile, user]);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +85,16 @@ export default function ProfilePage() {
     toast.success("Foto profil dihapus");
   };
 
-  if (!profile) return <p className="text-sm text-muted-foreground">Memuat…</p>;
+  if (authLoading || !profile) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-6">
+        <div className="h-8 w-40 animate-pulse rounded bg-muted"></div>
+        <Card className="p-6">
+          <div className="h-20 w-full animate-pulse rounded bg-muted"></div>
+        </Card>
+      </div>
+    );
+  }
 
   const avatarSrc = preview ?? profile.avatar_url;
 

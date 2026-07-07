@@ -1,5 +1,5 @@
 // ============================================================
-// Temuin — Domain Types
+// Temuin - Domain Types
 // These mirror the Postgres tables defined in supabase/schema.sql
 // ============================================================
 

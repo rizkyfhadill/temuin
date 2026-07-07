@@ -25,12 +25,23 @@ export function UserNav() {
   }, []);
 
   const logout = async () => {
-    const supabase = getSupabaseBrowserSafe();
-    if (supabase) await supabase.auth.signOut();
-    await refresh();
-    toast.success("Berhasil keluar");
-    router.push("/");
-    router.refresh();
+    try {
+      const supabase = getSupabaseBrowserSafe();
+      if (supabase) {
+        // Sign out from Supabase - clears session and cookies
+        await supabase.auth.signOut();
+      }
+      // Refresh auth context to clear client-side state
+      await refresh();
+      toast.success("Berhasil keluar");
+      setOpen(false);
+      // Redirect to home
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Gagal keluar");
+    }
   };
 
   const name = profile?.full_name || profile?.username || "Pengguna";

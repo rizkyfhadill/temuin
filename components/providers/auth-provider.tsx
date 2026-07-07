@@ -36,12 +36,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = getSupabaseBrowserSafe();
     if (!supabase) return null;
     try {
-      const { data } = await supabase.from("profiles").select("*").eq("id", uid).single();
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", uid).single();
       if (data) return data as Profile;
-      // The handle_new_user trigger may lag a moment on a brand-new signup.
-      if (attempt < 2) {
+      // Profile might not exist immediately after signup due to trigger delay
+      if (attempt < 2 && error?.code === "PGRST116") {
         await new Promise((r) => setTimeout(r, 500));
         return loadProfile(uid, attempt + 1);
+      }
+      if (error) {
+        console.error("Profile load error:", error.message);
       }
     } catch (e) {
       console.error("Failed to load profile:", e);
@@ -53,14 +56,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = getSupabaseBrowserSafe();
     if (!supabase) return;
     try {
+      // First ensure session is restored from storage
       const {
-        data: { user: currentUser },
-      } = await supabase.auth.getUser();
-      setUser(currentUser ?? null);
-      if (currentUser) {
-        const prof = await loadProfile(currentUser.id);
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        setUser(session.user);
+        const prof = await loadProfile(session.user.id);
         setProfile(prof);
       } else {
+        setUser(null);
         setProfile(null);
       }
     } catch (e) {
@@ -83,21 +89,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (initRef.current) return;
     initRef.current = true;
 
-    // Get initial auth state immediately
+    // Restore session and profile on initial load
     (async () => {
       try {
+        // First, ensure session is restored from storage
         const {
-          data: { user: currentUser },
-        } = await supabase.auth.getUser();
-        setUser(currentUser ?? null);
-        if (currentUser) {
-          const prof = await loadProfile(currentUser.id);
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          setUser(session.user);
+          const prof = await loadProfile(session.user.id);
           setProfile(prof);
         } else {
+          setUser(null);
           setProfile(null);
         }
       } catch (e) {
-        console.error("Failed to get initial user:", e);
+        console.error("Failed to restore initial session:", e);
         setUser(null);
         setProfile(null);
       } finally {
@@ -105,20 +114,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })();
 
-    // Listen for auth changes
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const prof = await loadProfile(session.user.id);
-        setProfile(prof);
-      } else {
-        setProfile(null);
+    // Listen for auth changes after initial restore
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Handle different auth events
+      if (event === "INITIAL_SESSION") {
+        // Initial session loaded from storage - already handled above
+        return;
       }
-      setLoading(false);
+
+      if (event === "SIGNED_IN") {
+        // User just signed in
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          const prof = await loadProfile(session.user.id);
+          setProfile(prof);
+        }
+        setLoading(false);
+      } else if (event === "SIGNED_OUT") {
+        // User signed out
+        setUser(null);
+        setProfile(null);
+        setLoading(false);
+      } else if (event === "TOKEN_REFRESHED") {
+        // Token automatically refreshed - no action needed, session is updated
+        setLoading(false);
+      } else if (event === "USER_UPDATED") {
+        // User info updated (e.g., email confirmed)
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
     });
 
     return () => {
-      sub.subscription.unsubscribe();
+      sub?.subscription.unsubscribe();
     };
   }, [loadProfile]);
 

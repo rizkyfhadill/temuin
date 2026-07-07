@@ -18,7 +18,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { getSupabaseBrowserSafe } from "@/lib/supabase/client";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
-  const { profile, role } = useAuth();
+  const { user, profile, role, loading: authLoading } = useAuth();
   const pathname = usePathname();
   const [notifCount, setNotifCount] = React.useState(0);
   const [msgCount, setMsgCount] = React.useState(0);
@@ -36,10 +36,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     base.push({ href: "/admin", label: "Admin Panel", icon: ShieldCheck });
   }
 
+  // Fetch notification and message counts
   React.useEffect(() => {
     const supabase = getSupabaseBrowserSafe();
-    if (!supabase || !profile) return;
-    const uid = profile.id;
+    // Only fetch if user is authenticated
+    if (!supabase || !user) return;
+    
+    const uid = user.id;
 
     supabase
       .from("notifications")
@@ -49,22 +52,46 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       .then(({ count }) => setNotifCount(count ?? 0));
 
     (async () => {
-      const { data: rooms } = await supabase
-        .from("chat_rooms")
-        .select("id")
-        .or(`user_a.eq.${uid},user_b.eq.${uid}`);
-      if (!rooms?.length) return setMsgCount(0);
-      const ids = rooms.map((r) => r.id);
-      const { data: msgs } = await supabase
-        .from("messages")
-        .select("room_id, sender_id, read_by")
-        .in("room_id", ids);
-      const unread = (msgs ?? []).filter(
-        (m) => m.sender_id !== uid && (!m.read_by || !m.read_by.includes(uid))
-      ).length;
-      setMsgCount(unread);
+      try {
+        const { data: rooms } = await supabase
+          .from("chat_rooms")
+          .select("id")
+          .or(`user_a.eq.${uid},user_b.eq.${uid}`);
+        if (!rooms?.length) return setMsgCount(0);
+        const ids = rooms.map((r) => r.id);
+        const { data: msgs } = await supabase
+          .from("messages")
+          .select("room_id, sender_id, read_by")
+          .in("room_id", ids);
+        const unread = (msgs ?? []).filter(
+          (m) => m.sender_id !== uid && (!m.read_by || !m.read_by.includes(uid))
+        ).length;
+        setMsgCount(unread);
+      } catch (error) {
+        console.error("Failed to fetch message count:", error);
+      }
     })();
-  }, [profile]);
+  }, [user]);
+
+  // Show skeleton while auth is loading
+  if (authLoading) {
+    return (
+      <div className="container flex gap-6 py-8">
+        <aside className="hidden w-60 shrink-0 lg:block">
+          <div className="sticky top-20 space-y-4">
+            <div className="rounded-xl border border-border bg-card p-4">
+              <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
+              <div className="mt-2 h-6 w-32 animate-pulse rounded bg-muted"></div>
+            </div>
+          </div>
+        </aside>
+        <div className="min-w-0 flex-1">{children}</div>
+        <div className="h-16 lg:hidden" />
+      </div>
+    );
+  }
+
+  const displayName = profile?.full_name || profile?.username || "Pengguna";
 
   return (
     <div className="container flex gap-6 py-8">
@@ -72,7 +99,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <div className="sticky top-20 space-y-4">
           <div className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">Masuk sebagai</p>
-            <p className="truncate font-semibold">@{profile?.username}</p>
+            <p className="truncate font-semibold">@{profile?.username || "—"}</p>
             <div className="mt-1 flex items-center gap-2">
               {typeof profile?.points === "number" && (
                 <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">

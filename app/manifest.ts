@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Temuin — Platform AI Lost & Found Indonesia",
+    name: "Temuin - Platform AI Lost & Found Indonesia",
     short_name: "Temuin",
     description: "Barang hilang? Temuin aja. Platform AI Lost & Find untuk Indonesia.",
     start_url: "/",

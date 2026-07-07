@@ -1,5 +1,5 @@
 // ============================================================
-// Temuin — AI Engine (Gemini, with deterministic fallback)
+// Temuin - AI Engine (Gemini, with deterministic fallback)
 //
 // - analyzeImage: Gemini Vision (multimodal) → kategori, warna, deskripsi.
 // - aiChatAssistant: Gemini text → jawaban safety/match.

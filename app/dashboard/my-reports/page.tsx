@@ -16,7 +16,7 @@ import { toast } from "@/components/ui/toaster";
 import type { Report } from "@/lib/types";
 
 export default function MyReportsPage() {
-  const { profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [reports, setReports] = React.useState<Report[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [editing, setEditing] = React.useState<Report | null>(null);
@@ -24,25 +24,31 @@ export default function MyReportsPage() {
 
   const load = React.useCallback(async () => {
     const supabase = getSupabaseBrowserSafe();
-    if (!supabase || !profile) return setLoading(false);
+    const uid = user?.id ?? profile?.id;
+    if (!supabase || !uid) {
+      setLoading(false);
+      return;
+    }
     const { data } = await supabase
       .from("reports")
       .select("*, categories(name)")
-      .eq("owner_id", profile.id)
+      .eq("owner_id", uid)
       .order("created_at", { ascending: false });
     setReports((data ?? []).map((r: any) => ({ ...r, category_name: r.categories?.name ?? null } as Report)));
     setLoading(false);
-  }, [profile]);
+  }, [profile, user]);
 
   React.useEffect(() => {
+    if (authLoading) return;
     load();
-  }, [load]);
+  }, [authLoading, load]);
 
   const del = async (id: string) => {
     if (!confirm("Hapus laporan ini?")) return;
     const supabase = getSupabaseBrowserSafe();
-    if (!supabase) return;
-    const { error } = await supabase.from("reports").delete().eq("id", id).eq("owner_id", profile!.id);
+    const uid = user?.id ?? profile?.id;
+    if (!supabase || !uid) return;
+    const { error } = await supabase.from("reports").delete().eq("id", id).eq("owner_id", uid);
     if (error) return toast.error(error.message);
     toast.success("Laporan dihapus");
     setReports((r) => r.filter((x) => x.id !== id));
@@ -50,7 +56,8 @@ export default function MyReportsPage() {
 
   const save = async () => {
     const supabase = getSupabaseBrowserSafe();
-    if (!supabase || !editing) return;
+    const uid = user?.id ?? profile?.id;
+    if (!supabase || !editing || !uid) return;
     setSaving(true);
     const { error } = await supabase
       .from("reports")
@@ -61,7 +68,7 @@ export default function MyReportsPage() {
         color: editing.color,
       })
       .eq("id", editing.id)
-      .eq("owner_id", profile!.id);
+      .eq("owner_id", uid);
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Laporan diperbarui");

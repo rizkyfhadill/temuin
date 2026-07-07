@@ -1,5 +1,5 @@
 // ============================================================
-// Temuin — Create / promote an Admin account
+// Temuin - Create / promote an Admin account
 // Uses the SUPABASE SERVICE ROLE key (server-only) so it can
 // create users and flip their role to "admin" in the DB.
 //

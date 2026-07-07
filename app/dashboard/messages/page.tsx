@@ -27,7 +27,7 @@ interface RoomView {
 }
 
 function MessagesInner() {
-  const { profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
   const supabase = getSupabaseBrowserSafe();
@@ -49,12 +49,12 @@ function MessagesInner() {
   const channelRef = React.useRef<any>(null);
   const typingTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const myId = profile?.id;
+  const myId = user?.id ?? profile?.id;
 
   // Load rooms
   React.useEffect(() => {
-    if (!supabase || !myId) {
-      setLoadingRooms(false);
+    if (authLoading || !supabase || !myId) {
+      if (!authLoading) setLoadingRooms(false);
       return;
     }
     (async () => {
@@ -77,11 +77,11 @@ function MessagesInner() {
       setLoadingRooms(false);
       if (!activeId && list[0]) setActiveId(list[0].id);
     })();
-  }, [supabase, myId, activeId]);
+  }, [authLoading, supabase, myId, activeId]);
 
   // Load messages + subscribe
   React.useEffect(() => {
-    if (!supabase || !activeId || !myId) return;
+    if (authLoading || !supabase || !activeId || !myId) return;
     let cancelled = false;
     setLoadingMsgs(true);
     (async () => {
@@ -122,7 +122,7 @@ function MessagesInner() {
       cancelled = true;
       supabase.removeChannel(channel);
     };
-  }, [supabase, activeId, myId]);
+  }, [authLoading, supabase, activeId, myId]);
 
   function mapMsg(r: any): ChatMessage {
     return {

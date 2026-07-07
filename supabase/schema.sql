@@ -1,5 +1,5 @@
 -- ============================================================
--- Temuin — Supabase Schema
+-- Temuin - Supabase Schema
 -- Run this in your Supabase SQL Editor (Project → SQL → New query).
 -- Then run supabase/seed.sql for demo data.
 -- ============================================================

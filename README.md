@@ -1,4 +1,4 @@
-# Temuin — Platform AI Lost & Found Indonesia
+# Temuin - Platform AI Lost & Found Indonesia
 
 > **Barang hilang? Temuin aja.**
 
@@ -84,6 +84,7 @@ is idempotent (it promotes an existing user instead of duplicating).
 
 > Prefer the dashboard? Create any user via Supabase → Authentication → Users,
 > then run:
+>
 > ```sql
 > update public.profiles set role = 'admin', verified = true
 > where username = '<that username>';
@@ -93,14 +94,14 @@ is idempotent (it promotes an existing user instead of duplicating).
 
 ## 🔐 Auth configuration (Supabase)
 
-- **Providers**: enable *Email* and *Google* (Auth → Providers). For Google, add
+- **Providers**: enable _Email_ and _Google_ (Auth → Providers). For Google, add
   the OAuth client ID/secret and set the callback to
   `<SITE>/auth/callback`.
 - **Site URL / Redirects**: set Site URL to `http://localhost:3000` and add
-  `http://localhost:3000/auth/callback` to *Redirect URLs*.
+  `http://localhost:3000/auth/callback` to _Redirect URLs_.
 - **Email confirmation**: for the smoothest local dev, you can turn OFF
-  *Confirm email* (Auth → Providers → Email). If you keep it ON, either enable
-  *Use secure email links (PKCE)* (the confirm link hits `/auth/callback` and
+  _Confirm email_ (Auth → Providers → Email). If you keep it ON, either enable
+  _Use secure email links (PKCE)_ (the confirm link hits `/auth/callback` and
   logs the user in) **or** just click the link in the email — Supabase verifies
   it and lands you logged-in on the Site URL. Password reset (`/forgot`) follows
   the same `/auth/callback` flow.
