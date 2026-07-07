@@ -126,14 +126,14 @@ export async function getComments(reportId: string): Promise<CommentRow[]> {
     const { data } = await supabase
       .from("comments")
       .select(
-        "*, author:profiles(username, full_name, avatar_url, role, city, bio, verified, suspended, created_at, updated_at)"
+        "*, author:profiles(id, username, full_name, avatar_url, role, city, bio, verified, suspended, created_at, updated_at)"
       )
       .eq("report_id", reportId)
       .order("created_at", { ascending: true });
     return (data ?? []).map((r: any) => ({
       ...r,
       author: r.author
-        ? { id: r.user_id, username: r.author.username, full_name: r.author.full_name, avatar_url: r.author.avatar_url, role: r.author.role, city: r.author.city, bio: r.author.bio, verified: r.author.verified, suspended: r.author.suspended, created_at: r.author.created_at, updated_at: r.author.updated_at }
+        ? { id: r.author.id || r.user_id, username: r.author.username, full_name: r.author.full_name, avatar_url: r.author.avatar_url, role: r.author.role, city: r.author.city, bio: r.author.bio, verified: r.author.verified, suspended: r.author.suspended, created_at: r.author.created_at, updated_at: r.author.updated_at }
         : undefined,
     }));
   } catch {

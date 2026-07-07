@@ -72,7 +72,7 @@ export default function RegisterPage() {
     // Always persist the profile immediately for better UX
     if (data.user) {
       try {
-        await supabase.from("profiles").upsert(
+        const { error: profileError } = await supabase.from("profiles").upsert(
           {
             id: data.user.id,
             username: form.username,
@@ -81,8 +81,11 @@ export default function RegisterPage() {
           },
           { onConflict: "id" }
         );
-      } catch {
-        /* non-fatal — the trigger handles creation */
+        if (profileError) {
+          console.error("Profile creation error:", profileError);
+        }
+      } catch (err) {
+        console.error("Profile creation exception:", err);
       }
     }
 

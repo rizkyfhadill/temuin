@@ -149,7 +149,9 @@ returns boolean language sql stable security definer set search_path = public as
 $$;
 
 -- profiles
-create policy "profiles_select" on public.profiles for select using (id = auth.uid() or public.is_admin());
+-- Allow anyone to read public profile fields (username, full_name, avatar_url, bio, verified, role, city)
+-- Users can only modify their own profile; admins can modify any profile
+create policy "profiles_select" on public.profiles for select using (true);
 create policy "profiles_insert" on public.profiles for insert with check (id = auth.uid());
 create policy "profiles_update" on public.profiles for update using (id = auth.uid() or public.is_admin());
 

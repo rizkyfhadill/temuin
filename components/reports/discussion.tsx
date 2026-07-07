@@ -72,9 +72,9 @@ export function Discussion({
     if (error) return toast.error(error.message);
     const mapped: CommentRow = {
       ...data,
-      author: data.author
+      author: data.author && data.author.id
         ? { id: data.author.id, username: data.author.username, full_name: data.author.full_name, avatar_url: data.author.avatar_url, role: data.author.role, city: data.author.city, bio: data.author.bio, verified: data.author.verified, suspended: data.author.suspended, created_at: data.author.created_at, updated_at: data.author.updated_at }
-        : undefined,
+        : profile ? { id: profile.id, username: profile.username, full_name: profile.full_name, avatar_url: profile.avatar_url, role: profile.role, city: profile.city, bio: profile.bio, verified: profile.verified, suspended: profile.suspended, created_at: profile.created_at, updated_at: profile.updated_at } : undefined,
     };
     setComments((c) => [...c, mapped]);
     setBody("");
@@ -120,25 +120,29 @@ export function Discussion({
         {comments.length === 0 && (
           <p className="text-center text-sm text-muted-foreground">Belum ada diskusi. Jadilah yang pertama!</p>
         )}
-        {comments.map((c) => (
-          <div key={c.id} className="flex gap-3">
-            <Avatar
-              src={c.author?.avatar_url}
-              name={c.author?.full_name || c.author?.username || c.user_id}
-              size={36}
-            />
-            <div className="flex-1 rounded-lg border border-border bg-background p-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-semibold">
-                  {c.author?.full_name ? c.author.full_name : `@${c.author?.username ?? c.user_id}`}
-                </span>
-                {c.author?.verified && <span className="text-xs text-primary">✓</span>}
-                <span className="text-xs text-muted-foreground">{formatDateTime(c.created_at)}</span>
+        {comments.map((c) => {
+          // Display name priority: full_name > username > user_id
+          const displayName = c.author?.full_name ? c.author.full_name : (c.author?.username ? `@${c.author.username}` : `User ${c.user_id.slice(0, 8)}`);
+          return (
+            <div key={c.id} className="flex gap-3">
+              <Avatar
+                src={c.author?.avatar_url}
+                name={c.author?.full_name || c.author?.username || c.user_id}
+                size={36}
+              />
+              <div className="flex-1 rounded-lg border border-border bg-background p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-semibold">
+                    {displayName}
+                  </span>
+                  {c.author?.verified && <span className="text-xs text-primary">✓</span>}
+                  <span className="text-xs text-muted-foreground">{formatDateTime(c.created_at)}</span>
+                </div>
+                <p className="mt-1 text-sm whitespace-pre-wrap">{c.body}</p>
               </div>
-              <p className="mt-1 text-sm whitespace-pre-wrap">{c.body}</p>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
