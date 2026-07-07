@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,10 +11,10 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/components/providers/auth-provider";
 import { getSupabaseBrowserSafe } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/toaster";
+import { LoginMessage } from "@/components/auth/login-message";
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { refresh } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -23,23 +24,7 @@ export default function LoginPage() {
 
   React.useEffect(() => {
     if (!getSupabaseBrowserSafe()) setNoEnv(true);
-
-    // Handle auth messages from callback
-    const message = searchParams.get("message");
-    const error = searchParams.get("error");
-
-    if (message === "password_reset_success") {
-      toast.success("Password berhasil diubah. Silakan login dengan password baru Anda.");
-    } else if (message === "email_confirmed") {
-      toast.success("Email berhasil diverifikasi. Silakan login.");
-    }
-
-    if (error === "auth_callback_failed") {
-      toast.error("Link verifikasi tidak valid atau telah kadaluarsa. Silakan coba lagi.");
-    } else if (error === "oauth_callback_failed") {
-      toast.error("Login dengan Google gagal. Silakan coba lagi.");
-    }
-  }, [searchParams]);
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,8 +57,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container flex min-h-[calc(100vh-4rem)] items-center justify-center py-10">
-      <div className="w-full max-w-sm">
+    <>
+      <Suspense fallback={null}>
+        <LoginMessage />
+      </Suspense>
+      <div className="container flex min-h-[calc(100vh-4rem)] items-center justify-center py-10">
+        <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
           <Link href="/" className="inline-flex items-center gap-2 text-xl font-bold">
             <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">T</span>
@@ -125,8 +114,9 @@ export default function LoginPage() {
           Belum punya akun?{" "}
           <Link href="/register" className="font-medium text-primary hover:underline">Daftar</Link>
         </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
