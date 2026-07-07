@@ -117,7 +117,7 @@ export default function RegisterPage() {
             <Label htmlFor="username">Username</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="username" value={form.username} onChange={set("username")} className="pl-9" placeholder="nama_pengguna" />
+              <Input id="username" value={form.username} onChange={set("username")} className="pl-9" placeholder="username" />
             </div>
             {errors.username && <p className="text-xs text-destructive">{errors.username}</p>}
           </div>
