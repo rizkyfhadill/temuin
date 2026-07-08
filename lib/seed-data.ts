@@ -56,6 +56,7 @@ export const SEED_REPORTS: Report[] = [
     comments_locked: false,
     view_count: 1240,
     match_count: 2,
+    created_at: ""
   },
   {
     id: "r2",
@@ -80,6 +81,7 @@ export const SEED_REPORTS: Report[] = [
     comments_locked: false,
     view_count: 530,
     match_count: 0,
+    created_at: ""
   },
   {
     id: "r3",
@@ -104,6 +106,7 @@ export const SEED_REPORTS: Report[] = [
     comments_locked: false,
     view_count: 980,
     match_count: 1,
+    created_at: ""
   },
   {
     id: "r4",
@@ -128,6 +131,7 @@ export const SEED_REPORTS: Report[] = [
     comments_locked: false,
     view_count: 412,
     match_count: 0,
+    created_at: ""
   },
   {
     id: "r5",
@@ -152,6 +156,7 @@ export const SEED_REPORTS: Report[] = [
     comments_locked: false,
     view_count: 2100,
     match_count: 3,
+    created_at: ""
   },
   {
     id: "r6",
@@ -176,6 +181,7 @@ export const SEED_REPORTS: Report[] = [
     comments_locked: false,
     view_count: 320,
     match_count: 0,
+    created_at: ""
   },
   {
     id: "r7",
@@ -200,6 +206,7 @@ export const SEED_REPORTS: Report[] = [
     comments_locked: false,
     view_count: 760,
     match_count: 1,
+    created_at: ""
   },
   {
     id: "r8",
@@ -224,6 +231,7 @@ export const SEED_REPORTS: Report[] = [
     comments_locked: false,
     view_count: 90,
     match_count: 0,
+    created_at: ""
   },
 ];
 
