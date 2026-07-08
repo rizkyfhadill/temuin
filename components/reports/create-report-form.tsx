@@ -18,54 +18,6 @@ import type { ReportType, Category } from "@/lib/types";
 import type { AiAnalysis } from "@/lib/ai";
 
 const STEPS = ["Pilih Tipe", "Unggah Foto (AI)", "Isi Detail", "Pratinjau"];
-const INDONESIA_PROVINCES = [
-  "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Jambi", "Sumatera Selatan", "Bengkulu", "Lampung", "Kepulauan Bangka Belitung",
-  "Kepulauan Riau", "DKI Jakarta", "Jawa Barat", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur", "Banten", "Bali", "Nusa Tenggara Barat",
-  "Nusa Tenggara Timur", "Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara",
-  "Sulawesi Utara", "Sulawesi Tengah", "Sulawesi Selatan", "Sulawesi Tenggara", "Gorontalo", "Sulawesi Barat", "Maluku", "Maluku Utara",
-  "Papua Barat", "Papua", "Papua Tengah", "Papua Pegunungan", "Papua Selatan", "Papua Barat Daya"
-];
-const CITY_OPTIONS_BY_PROVINCE: Record<string, string[]> = {
-  "Aceh": ["Banda Aceh", "Langsa", "Lhokseumawe", "Sabang", "Subulussalam"],
-  "Sumatera Utara": ["Medan", "Binjai", "Padangsidimpuan", "Pematangsiantar", "Tebing Tinggi", "Tanjung Balai", "Sibolga", "Gunungsitoli"],
-  "Sumatera Barat": ["Padang", "Bukittinggi", "Payakumbuh", "Pariaman"],
-  "Riau": ["Pekanbaru", "Dumai", "Bangkinang"],
-  "Jambi": ["Jambi", "Sungai Penuh"],
-  "Sumatera Selatan": ["Palembang", "Prabumulih", "Lubuklinggau", "Pagar Alam"],
-  "Bengkulu": ["Bengkulu"],
-  "Lampung": ["Bandar Lampung", "Metro"],
-  "Kepulauan Bangka Belitung": ["Pangkal Pinang"],
-  "Kepulauan Riau": ["Batam", "Tanjung Pinang"],
-  "DKI Jakarta": ["Jakarta Pusat", "Jakarta Utara", "Jakarta Barat", "Jakarta Selatan", "Jakarta Timur"],
-  "Jawa Barat": ["Bandung", "Bogor", "Depok", "Bekasi", "Cimahi", "Tasikmalaya", "Banjar", "Cirebon", "Kuningan", "Garut", "Sukabumi"],
-  "Jawa Tengah": ["Semarang", "Solo", "Salatiga", "Magelang", "Purwokerto", "Pekalongan", "Tegal"],
-  "DI Yogyakarta": ["Yogyakarta"],
-  "Jawa Timur": ["Surabaya", "Malang", "Kediri", "Madiun", "Blitar", "Batu", "Probolinggo", "Pasuruan", "Banyuwangi"],
-  "Banten": ["Tangerang", "Serang", "Cilegon", "Ciputat"],
-  "Bali": ["Denpasar", "Singaraja"],
-  "Nusa Tenggara Barat": ["Mataram", "Bima"],
-  "Nusa Tenggara Timur": ["Kupang", "Atambua", "Ruteng", "Waingapu"],
-  "Kalimantan Barat": ["Pontianak", "Singkawang", "Ketapang", "Sambas"],
-  "Kalimantan Tengah": ["Palangka Raya"],
-  "Kalimantan Selatan": ["Banjarmasin", "Banjarbaru", "Martapura"],
-  "Kalimantan Timur": ["Samarinda", "Balikpapan", "Bontang"],
-  "Kalimantan Utara": ["Tarakan", "Tanjung Selor"],
-  "Sulawesi Utara": ["Manado", "Bitung", "Tomohon", "Kotamobagu"],
-  "Sulawesi Tengah": ["Palu", "Luwuk", "Donggala"],
-  "Sulawesi Selatan": ["Makassar", "Parepare", "Palopo", "Watampone"],
-  "Sulawesi Tenggara": ["Kendari", "Baubau"],
-  "Gorontalo": ["Gorontalo"],
-  "Sulawesi Barat": ["Mamuju"],
-  "Maluku": ["Ambon", "Tual"],
-  "Maluku Utara": ["Sofifi"],
-  "Papua Barat": ["Manokwari", "Sorong", "Fakfak"],
-  "Papua": ["Jayapura", "Merauke", "Timika", "Nabire", "Biak"],
-  "Papua Tengah": ["Nabire"],
-  "Papua Pegunungan": ["Wamena"],
-  "Papua Selatan": ["Merauke"],
-  "Papua Barat Daya": ["Sorong"]
-};
-const getCityOptions = (province: string) => CITY_OPTIONS_BY_PROVINCE[province] ?? [];
 
 export function CreateReportForm({ categories }: { categories: Category[] }) {
   const router = useRouter();
@@ -90,6 +42,46 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
     reported_at: new Date().toISOString().slice(0, 10),
     lost_found_date: new Date().toISOString().slice(0, 10),
   });
+  const [provinces, setProvinces] = React.useState<{ id: string; name: string }[]>([]);
+  const [cities, setCities] = React.useState<{ id: string; name: string }[]>([]);
+
+  React.useEffect(() => {
+    const loadProvinces = async () => {
+      try {
+        const res = await fetch("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json");
+        const data = await res.json();
+        setProvinces(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadProvinces();
+  }, []);
+
+  React.useEffect(() => {
+    if (!form.province) {
+      setCities([]);
+      return;
+    }
+
+    const loadCities = async () => {
+      try {
+        const province = provinces.find((p) => p.name === form.province);
+        if (!province) return;
+
+        const res = await fetch(
+          `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${province.id}.json`
+        );
+        const data = await res.json();
+        setCities(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadCities();
+  }, [form.province, provinces]);
 
   const guest = !loading && role === "guest";
 
@@ -131,7 +123,12 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
     const res = await fetch("/api/ai/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fileName: f.name, mimeType: f.type, base64 }),
+      body: JSON.stringify({
+        fileName: f.name,
+        mimeType: f.type,
+        base64,
+        hint: type === "lost" ? "hilang" : "ditemukan",
+      }),
     });
     const data: AiAnalysis = await res.json();
     setAnalysis(data);
@@ -145,7 +142,7 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
       category_id: matched?.id ?? fm.category_id,
     }));
     setAnalyzing(false);
-    toast.success(`AI mendeteksi: ${data.category} • ${data.color} (${Math.round(data.confidence * 100)}%)`);
+    toast.success(`AI mendeteksi: ${data.category} (${Math.round(data.confidence * 100)}%)`);
   };
 
   const validateStep2 = () => {
@@ -348,8 +345,7 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
                   <Sparkles className="size-4" /> Hasil Analisis AI
                 </p>
                 <p className="mt-1 text-muted-foreground">
-                  Kategori: <b>{analysis.category}</b> • Warna: <b>{analysis.color}</b> • Keyakinan:{" "}
-                  <b>{Math.round(analysis.confidence * 100)}%</b>
+                  Kategori: <b>{analysis.category}</b> • Keyakinan: <b>{Math.round(analysis.confidence * 100)}%</b>
                 </p>
                 <p className="mt-1 text-muted-foreground">Deskripsi otomatis telah diisi — kamu bisa mengubahnya.</p>
               </div>
@@ -396,8 +392,10 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
                   className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <option value="">Pilih provinsi</option>
-                  {INDONESIA_PROVINCES.map((p) => (
-                    <option key={p} value={p}>{p}</option>
+                  {provinces.map((province) => (
+                    <option key={province.id} value={province.name}>
+                      {province.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -412,8 +410,10 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
                   disabled={!form.province}
                 >
                   <option value="">{form.province ? `Pilih kota di ${form.province}` : "Pilih provinsi terlebih dahulu"}</option>
-                  {getCityOptions(form.province).map((city) => (
-                    <option key={city} value={city}>{city}</option>
+                  {cities.map((city) => (
+                    <option key={city.id} value={city.name}>
+                      {city.name}
+                    </option>
                   ))}
                 </select>
               </div>

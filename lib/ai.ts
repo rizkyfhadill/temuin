@@ -88,9 +88,10 @@ export async function analyzeImage(opts: {
           "Ini foto barang hilang atau ditemukan. Balas HANYA dengan JSON: " +
           `{ "category": salah satu dari [${CATEGORIES.map((c) => `"${c.name}"`).join(", ")}], ` +
           `"color": "warna dominan (Bahasa Indonesia, mis. Hitam)", ` +
-          `"description": "deskripsi singkat 1-2 kalimat Bahasa Indonesia yang membantu pencocokan", ` +
+          `"description": "deskripsi singkat 1-2 kalimat Bahasa Indonesia yang cocok untuk laporan hilang atau ditemukan, dimulai dengan 'Telah kehilangan...' atau 'Telah ditemukan...' sesuai konteks.", ` +
           `"confidence": angka 0-1 kepercayaan analisismu }.` +
-          (opts.fileName ? ` Nama file: ${opts.fileName}.` : ""),
+          (opts.fileName ? ` Nama file: ${opts.fileName}.` : "") +
+          (opts.hint ? ` Ini adalah laporan ${opts.hint}.` : ""),
       },
     ].filter(Boolean) as any[],
     { responseMimeType: "application/json", temperature: 0.3 }
@@ -142,6 +143,7 @@ function hashString(s: string) {
 export function mockAnalyzeImage(opts: { fileName?: string; mimeType?: string; hint?: string }): AiAnalysis {
   const text = `${opts.fileName ?? ""} ${opts.hint ?? ""}`.toLowerCase();
   const seed = hashString(text || "temuin");
+  const status = opts.hint === "found" ? "Ditemukan" : "Telah kehilangan";
   const KW: { slug: string; name: string; kw: string[] }[] = [
     { slug: "dompet", name: "Dompet", kw: ["dompet", "wallet", "uang", "kartu", "atm", "ktp"] },
     { slug: "kunci", name: "Kunci", kw: ["kunci", "key", "remote"] },
@@ -163,8 +165,8 @@ export function mockAnalyzeImage(opts: { fileName?: string; mimeType?: string; h
     categorySlug: match.slug,
     color,
     description:
-      `Berdasarkan analisis gambar, objek terdeteksi sebagai ${match.name.toLowerCase()} berwarna ${color.toLowerCase()}. ` +
-      `Pastikan untuk melengkapi ciri-ciri khusus agar memudahkan pencocokan otomatis.`,
+      `${status} ${match.name.toLowerCase()} dengan ciri-ciri warna ${color.toLowerCase()}. ` +
+      `Lengkapi detail lokasi dan kondisi agar memudahkan pencocokan.`,
     confidence,
     tags: [color.toLowerCase(), match.name.toLowerCase()],
   };
