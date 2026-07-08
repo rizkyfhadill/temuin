@@ -1,6 +1,12 @@
 import type { MetadataRoute } from "next";
 import { getPublishedReports } from "@/lib/data";
 
+function parseDateOrFallback(value: string | null | undefined, fallback: Date) {
+  if (!value) return fallback;
+  const parsed = new Date(value);
+  return Number.isFinite(parsed.getTime()) ? parsed : fallback;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
@@ -13,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const reports = await getPublishedReports({ limit: 1000 });
     dynamic = reports.map((r) => ({
       url: `${base}/reports/${r.id}`,
-      lastModified: new Date(r.updated_at ?? r.created_at),
+      lastModified: parseDateOrFallback(r.updated_at ?? r.created_at, new Date()),
       changeFrequency: "weekly" as const,
       priority: 0.6,
     }));
