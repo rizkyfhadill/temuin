@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
 
-export async function POST(_: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     const supabase = await getSupabaseServer();
     const { data } = await supabase.from("reports").select("view_count").eq("id", id).single();
