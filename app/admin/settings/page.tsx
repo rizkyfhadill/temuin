@@ -38,8 +38,18 @@ export default function AdminSettingsPage() {
       <Card className="space-y-4 p-6">
         <h2 className="font-semibold">Tampilan Default</h2>
         <div className="flex gap-2">
-          {["light", "dark", "system"].map((t) => (
-            <Button key={t} variant="outline" size="sm" onClick={() => { setTheme(t); toast.success(`Tema default: ${t}`); }}>{t}</Button>
+          {(["light", "dark", "system"] as const).map((t) => (
+            <Button
+              key={t}
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setTheme(t);
+                toast.success(`Tema default: ${t}`);
+              }}
+            >
+              {t}
+            </Button>
           ))}
         </div>
       </Card>
