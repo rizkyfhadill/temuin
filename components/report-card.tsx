@@ -35,16 +35,16 @@ export function ReportCard({ report }: { report: Report }) {
           
           {/* Badge Overlay */}
           <div className="absolute inset-0 flex items-start justify-between p-3">
-            <Badge 
+            <Badge
               variant={report.type === "lost" ? "destructive" : "success"}
-              className="text-xs font-semibold"
+              className="rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold shadow-sm shadow-black/10 text-white"
             >
               {report.type === "lost" ? "Hilang" : "Ditemukan"}
             </Badge>
             {report.category_name && (
-              <Badge 
-                variant="secondary" 
-                className="bg-background/85 text-xs font-medium backdrop-blur"
+              <Badge
+                variant="secondary"
+                className="rounded-full bg-secondary px-2.5 py-1 text-[10px] sm:text-xs font-semibold shadow-sm shadow-black/10"
               >
                 {report.category_name}
               </Badge>

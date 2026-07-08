@@ -16,7 +16,7 @@ const ITEMS_PER_PAGE = 12;
 export default async function ReportsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; type?: string; category?: string; city?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; type?: string; category?: string; province?: string; city?: string; page?: string }>;
 }) {
   const sp = await searchParams;
   const currentPage = Math.max(1, parseInt(sp.page || "1", 10));
@@ -26,6 +26,7 @@ export default async function ReportsPage({
       q: sp.q,
       type: sp.type as "lost" | "found" | undefined,
       category: sp.category,
+      province: sp.province,
       city: sp.city,
       limit: ITEMS_PER_PAGE,
       page: currentPage - 1,
@@ -34,6 +35,7 @@ export default async function ReportsPage({
       q: sp.q,
       type: sp.type as "lost" | "found" | undefined,
       category: sp.category,
+      province: sp.province,
       city: sp.city,
     }),
     getCategories(),

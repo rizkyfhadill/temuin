@@ -31,6 +31,7 @@ export interface ReportQuery {
   q?: string;
   category?: string;
   type?: "lost" | "found";
+  province?: string;
   city?: string;
   limit?: number;
   page?: number;
@@ -39,12 +40,13 @@ export interface ReportQuery {
 export async function getPublishedReportsCount(
   opts: Omit<ReportQuery, "limit" | "page"> = {}
 ): Promise<number> {
-  const { q, category, type, city } = opts;
+  const { q, category, type, province, city } = opts;
 
   if (!SUPABASE_LIVE) {
     let r = [...SEED_REPORTS];
     if (type) r = r.filter((x) => x.type === type);
     if (category) r = r.filter((x) => x.category_name === category);
+    if (province) r = r.filter((x) => x.province === province);
     if (city) r = r.filter((x) => x.city === city);
     if (q)
       r = r.filter(
@@ -60,10 +62,11 @@ export async function getPublishedReportsCount(
     let query = supabase
       .from("reports")
       .select("*", { count: "exact", head: true })
-      .eq("status", "published");
+      .in("status", ["published", "returned"]);
 
     if (type) query = query.eq("type", type);
     if (category) query = query.eq("categories.name", category);
+    if (province) query = query.eq("province", province);
     if (city) query = query.eq("city", city);
     if (q) query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`);
 
@@ -75,12 +78,13 @@ export async function getPublishedReportsCount(
 }
 
 export async function getPublishedReports(opts: ReportQuery = {}): Promise<Report[]> {
-  const { q, category, type, city, limit = 12, page = 0 } = opts;
+  const { q, category, type, province, city, limit = 12, page = 0 } = opts;
 
   if (!SUPABASE_LIVE) {
     let r = [...SEED_REPORTS];
     if (type) r = r.filter((x) => x.type === type);
     if (category) r = r.filter((x) => x.category_name === category);
+    if (province) r = r.filter((x) => x.province === province);
     if (city) r = r.filter((x) => x.city === city);
     if (q)
       r = r.filter(
@@ -96,10 +100,11 @@ export async function getPublishedReports(opts: ReportQuery = {}): Promise<Repor
     let query = supabase
       .from("reports")
       .select("*, author:profiles(*), categories(name)")
-      .eq("status", "published");
+      .in("status", ["published", "returned"]);
 
     if (type) query = query.eq("type", type);
     if (category) query = query.eq("categories.name", category);
+    if (province) query = query.eq("province", province);
     if (city) query = query.eq("city", city);
     if (q) query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`);
 
