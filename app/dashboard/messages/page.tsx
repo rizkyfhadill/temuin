@@ -220,9 +220,9 @@ function MessagesInner() {
   const filtered = search ? messages.filter((m) => m.body?.toLowerCase().includes(search.toLowerCase())) : messages;
 
   return (
-    <div className="grid h-[calc(100vh-7rem)] sm:h-[calc(100vh-8rem)] overflow-hidden rounded-lg sm:rounded-xl border border-border bg-card lg:grid-cols-[280px_1fr]">
+    <div className="grid h-[calc(100vh-7rem)] min-h-0 overflow-hidden rounded-lg border border-border bg-card sm:h-[calc(100vh-8rem)] sm:rounded-xl lg:grid-cols-[280px_1fr]">
       {/* Conversation list */}
-      <div className={cn("flex flex-col border-r border-border", activeId && "hidden lg:flex")}>
+      <div className={cn("flex min-h-0 flex-col border-r border-border", activeId && "hidden lg:flex")}>
         <div className="border-b border-border p-2 sm:p-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -262,7 +262,7 @@ function MessagesInner() {
 
       {/* Chat window */}
       {activeRoom ? (
-        <div className={cn("flex flex-col", !activeId && "hidden lg:flex")}>
+        <div className={cn("flex min-h-0 flex-col", !activeId && "hidden lg:flex")}>
           <div className="flex items-center gap-2 sm:gap-3 border-b border-border p-2 sm:p-3">
             <button className="lg:hidden flex-shrink-0" onClick={() => setActiveId(null)} aria-label="Kembali">
               <ArrowLeft className="size-4 sm:size-5" />
@@ -291,7 +291,7 @@ function MessagesInner() {
             </div>
           )}
 
-          <div ref={scrollRef} className="flex-1 space-y-2 sm:space-y-3 overflow-y-auto scroll-thin p-2 sm:p-4">
+          <div ref={scrollRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain scroll-thin p-2 sm:space-y-3 sm:p-4">
             {loadingMsgs ? (
               <div className="grid h-full place-items-center text-muted-foreground"><Loader2 className="size-4 sm:size-5 animate-spin" /></div>
             ) : filtered.length === 0 ? (
