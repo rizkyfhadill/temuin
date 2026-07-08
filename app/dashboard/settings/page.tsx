@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/providers/theme-provider";
 import { useRouter } from "next/navigation";
 import { Sun, Moon, Monitor, LogOut, Loader2, KeyRound } from "lucide-react";
 import { Card } from "@/components/ui/card";

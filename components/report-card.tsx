@@ -3,13 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Calendar, BadgeCheck } from "lucide-react";
+import { MapPin, Calendar, Clock3, BadgeCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Avatar } from "@/components/ui/avatar";
 import type { Report } from "@/lib/types";
-import { formatDate, timeAgo } from "@/lib/utils";
+import { cn, formatDate, timeAgo } from "@/lib/utils";
 
 export function ReportCard({ report }: { report: Report }) {
   const href = `/reports/${report.id}`;
@@ -37,7 +37,12 @@ export function ReportCard({ report }: { report: Report }) {
           <div className="absolute inset-0 flex items-start justify-between p-3">
             <Badge
               variant={report.type === "lost" ? "destructive" : "success"}
-              className="rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold shadow-sm shadow-black/10 text-white"
+              className={cn(
+                "rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold shadow-sm shadow-black/10",
+                report.type === "lost"
+                  ? "bg-destructive text-destructive-foreground"
+                  : "bg-success text-success-foreground"
+              )}
             >
               {report.type === "lost" ? "Hilang" : "Ditemukan"}
             </Badge>
@@ -89,7 +94,7 @@ export function ReportCard({ report }: { report: Report }) {
 
           {/* Footer - Author & Time */}
           <div className="mt-auto border-t border-border pt-3">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 min-w-0">
                 <Avatar 
                   src={report.author?.avatar_url} 
@@ -106,9 +111,10 @@ export function ReportCard({ report }: { report: Report }) {
                   </div>
                 </div>
               </div>
-              <span className="flex-shrink-0 text-xs text-muted-foreground whitespace-nowrap">
-                {timeAgo(report.created_at)}
-              </span>
+              <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Clock3 className="size-3.5 flex-shrink-0" />
+                <span>{timeAgo(report.created_at)}</span>
+              </div>
             </div>
           </div>
         </div>
