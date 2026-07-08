@@ -1,5 +1,5 @@
 -- ============================================================
--- Temuin - Supabase Schema
+-- Temuin — Supabase Schema
 -- Run this in your Supabase SQL Editor (Project → SQL → New query).
 -- Then run supabase/seed.sql for demo data.
 -- ============================================================
@@ -15,6 +15,7 @@ create table if not exists public.profiles (
   bio text,
   verified boolean default false,
   suspended boolean default false,
+  points integer not null default 0,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -36,11 +37,15 @@ create table if not exists public.reports (
   title text not null,
   description text not null,
   category_id uuid references public.categories(id) on delete set null,
+  category_name text,
   color text,
   image_url text,
   location text,
+  reward text,
+  province text,
   city text,
-  lost_found_date date,
+  reported_at timestamptz,
+  lost_found_date timestamptz,
   status text not null default 'pending'
     check (status in ('draft','pending','approved','published','rejected','returned')),
   owner_id uuid not null references public.profiles(id) on delete cascade,
@@ -48,11 +53,19 @@ create table if not exists public.reports (
   is_spam boolean default false,
   comments_locked boolean default false,
   view_count integer default 0,
+  match_count integer default 0,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
 create index if not exists reports_status_idx on public.reports(status);
+create index if not exists reports_type_idx on public.reports(type);
 create index if not exists reports_owner_idx on public.reports(owner_id);
+create index if not exists reports_category_idx on public.reports(category_id);
+create index if not exists reports_province_idx on public.reports(province);
+create index if not exists reports_city_idx on public.reports(city);
+create index if not exists reports_reported_at_idx on public.reports(reported_at desc);
+create index if not exists reports_lost_found_date_idx on public.reports(lost_found_date desc);
 create index if not exists reports_created_idx on public.reports(created_at desc);
 
 -- ---------- bookmarks ----------
@@ -75,6 +88,7 @@ create table if not exists public.comments (
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
 create index if not exists comments_report_idx on public.comments(report_id);
 
 -- ---------- chat_rooms ----------
@@ -88,6 +102,7 @@ create table if not exists public.chat_rooms (
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
 create index if not exists chat_rooms_participants_idx on public.chat_rooms(user_a, user_b);
 
 -- ---------- messages ----------
@@ -104,6 +119,7 @@ create table if not exists public.messages (
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
 create index if not exists messages_room_idx on public.messages(room_id, created_at);
 
 -- ---------- notifications ----------
@@ -117,6 +133,7 @@ create table if not exists public.notifications (
   read boolean default false,
   created_at timestamptz default now()
 );
+
 create index if not exists notifications_user_idx on public.notifications(user_id, read);
 
 -- ---------- ai_matches (optional persistence) ----------
@@ -149,9 +166,7 @@ returns boolean language sql stable security definer set search_path = public as
 $$;
 
 -- profiles
--- Allow anyone to read public profile fields (username, full_name, avatar_url, bio, verified, role, city)
--- Users can only modify their own profile; admins can modify any profile
-create policy "profiles_select" on public.profiles for select using (true);
+create policy "profiles_select" on public.profiles for select using (id = auth.uid() or public.is_admin());
 create policy "profiles_insert" on public.profiles for insert with check (id = auth.uid());
 create policy "profiles_update" on public.profiles for update using (id = auth.uid() or public.is_admin());
 
@@ -295,9 +310,6 @@ alter publication supabase_realtime add table public.reports;
 -- Gamification: reputation points, badges & leaderboard
 -- ============================================================
 
--- Points column on profiles (reputation score for the leaderboard).
-alter table public.profiles add column if not exists points integer not null default 0;
-
 -- Badge definitions (seeded via supabase/seed.sql).
 create table if not exists public.badges (
   id uuid primary key default gen_random_uuid(),
@@ -319,6 +331,7 @@ create table if not exists public.user_badges (
   awarded_at timestamptz default now(),
   unique (user_id, badge_id)
 );
+
 create index if not exists user_badges_user_idx on public.user_badges(user_id);
 
 -- Recompute a user's points + award/keep badges based on their activity.
