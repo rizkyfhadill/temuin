@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { PackageX, PackageCheck, Sparkles, Upload, Loader2, Check, ArrowRight, ArrowLeft, Camera } from "lucide-react";
+import { PackageX, PackageCheck, Sparkles, Upload, Loader2, Check, ArrowRight, ArrowLeft, Camera, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +18,54 @@ import type { ReportType, Category } from "@/lib/types";
 import type { AiAnalysis } from "@/lib/ai";
 
 const STEPS = ["Pilih Tipe", "Unggah Foto (AI)", "Isi Detail", "Pratinjau"];
+const INDONESIA_PROVINCES = [
+  "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Jambi", "Sumatera Selatan", "Bengkulu", "Lampung", "Kepulauan Bangka Belitung",
+  "Kepulauan Riau", "DKI Jakarta", "Jawa Barat", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur", "Banten", "Bali", "Nusa Tenggara Barat",
+  "Nusa Tenggara Timur", "Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara",
+  "Sulawesi Utara", "Sulawesi Tengah", "Sulawesi Selatan", "Sulawesi Tenggara", "Gorontalo", "Sulawesi Barat", "Maluku", "Maluku Utara",
+  "Papua Barat", "Papua", "Papua Tengah", "Papua Pegunungan", "Papua Selatan", "Papua Barat Daya"
+];
+const CITY_OPTIONS_BY_PROVINCE: Record<string, string[]> = {
+  "Aceh": ["Banda Aceh", "Langsa", "Lhokseumawe", "Sabang", "Subulussalam"],
+  "Sumatera Utara": ["Medan", "Binjai", "Padangsidimpuan", "Pematangsiantar", "Tebing Tinggi", "Tanjung Balai", "Sibolga", "Gunungsitoli"],
+  "Sumatera Barat": ["Padang", "Bukittinggi", "Payakumbuh", "Pariaman"],
+  "Riau": ["Pekanbaru", "Dumai", "Bangkinang"],
+  "Jambi": ["Jambi", "Sungai Penuh"],
+  "Sumatera Selatan": ["Palembang", "Prabumulih", "Lubuklinggau", "Pagar Alam"],
+  "Bengkulu": ["Bengkulu"],
+  "Lampung": ["Bandar Lampung", "Metro"],
+  "Kepulauan Bangka Belitung": ["Pangkal Pinang"],
+  "Kepulauan Riau": ["Batam", "Tanjung Pinang"],
+  "DKI Jakarta": ["Jakarta Pusat", "Jakarta Utara", "Jakarta Barat", "Jakarta Selatan", "Jakarta Timur"],
+  "Jawa Barat": ["Bandung", "Bogor", "Depok", "Bekasi", "Cimahi", "Tasikmalaya", "Banjar", "Cirebon", "Kuningan", "Garut", "Sukabumi"],
+  "Jawa Tengah": ["Semarang", "Solo", "Salatiga", "Magelang", "Purwokerto", "Pekalongan", "Tegal"],
+  "DI Yogyakarta": ["Yogyakarta"],
+  "Jawa Timur": ["Surabaya", "Malang", "Kediri", "Madiun", "Blitar", "Batu", "Probolinggo", "Pasuruan", "Banyuwangi"],
+  "Banten": ["Tangerang", "Serang", "Cilegon", "Ciputat"],
+  "Bali": ["Denpasar", "Singaraja"],
+  "Nusa Tenggara Barat": ["Mataram", "Bima"],
+  "Nusa Tenggara Timur": ["Kupang", "Atambua", "Ruteng", "Waingapu"],
+  "Kalimantan Barat": ["Pontianak", "Singkawang", "Ketapang", "Sambas"],
+  "Kalimantan Tengah": ["Palangka Raya"],
+  "Kalimantan Selatan": ["Banjarmasin", "Banjarbaru", "Martapura"],
+  "Kalimantan Timur": ["Samarinda", "Balikpapan", "Bontang"],
+  "Kalimantan Utara": ["Tarakan", "Tanjung Selor"],
+  "Sulawesi Utara": ["Manado", "Bitung", "Tomohon", "Kotamobagu"],
+  "Sulawesi Tengah": ["Palu", "Luwuk", "Donggala"],
+  "Sulawesi Selatan": ["Makassar", "Parepare", "Palopo", "Watampone"],
+  "Sulawesi Tenggara": ["Kendari", "Baubau"],
+  "Gorontalo": ["Gorontalo"],
+  "Sulawesi Barat": ["Mamuju"],
+  "Maluku": ["Ambon", "Tual"],
+  "Maluku Utara": ["Sofifi"],
+  "Papua Barat": ["Manokwari", "Sorong", "Fakfak"],
+  "Papua": ["Jayapura", "Merauke", "Timika", "Nabire", "Biak"],
+  "Papua Tengah": ["Nabire"],
+  "Papua Pegunungan": ["Wamena"],
+  "Papua Selatan": ["Merauke"],
+  "Papua Barat Daya": ["Sorong"]
+};
+const getCityOptions = (province: string) => CITY_OPTIONS_BY_PROVINCE[province] ?? [];
 
 export function CreateReportForm({ categories }: { categories: Category[] }) {
   const router = useRouter();
@@ -35,8 +83,11 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
     description: "",
     category_id: "",
     color: "",
+    reward: "",
     location: "",
+    province: "",
     city: "",
+    reported_at: new Date().toISOString().slice(0, 10),
     lost_found_date: new Date().toISOString().slice(0, 10),
   });
 
@@ -97,13 +148,66 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
     toast.success(`AI mendeteksi: ${data.category} • ${data.color} (${Math.round(data.confidence * 100)}%)`);
   };
 
+  const validateStep2 = () => {
+    if (!form.title.trim()) {
+      toast.error("Nama barang wajib diisi.");
+      return false;
+    }
+    if (form.title.trim().length < 3) {
+      toast.error("Nama barang minimal 3 karakter.");
+      return false;
+    }
+    if (!form.category_id) {
+      toast.error("Kategori wajib diisi.");
+      return false;
+    }
+    if (!form.reward.trim()) {
+      toast.error("Hadiah wajib diisi.");
+      return false;
+    }
+    if (!form.location.trim()) {
+      toast.error("Lokasi wajib diisi.");
+      return false;
+    }
+    if (!form.province.trim()) {
+      toast.error("Provinsi wajib diisi.");
+      return false;
+    }
+    if (!form.city.trim()) {
+      toast.error("Kota wajib diisi.");
+      return false;
+    }
+    if (!form.lost_found_date) {
+      toast.error("Tanggal terakhir dilihat wajib diisi.");
+      return false;
+    }
+    if (!form.description.trim()) {
+      toast.error("Deskripsi wajib diisi.");
+      return false;
+    }
+    if (form.description.trim().length < 10) {
+      toast.error("Deskripsi minimal 10 karakter.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (step === 0 && !type) {
+      toast.error("Pilih tipe laporan.");
+      return;
+    }
+    if (step === 2 && !validateStep2()) {
+      return;
+    }
+    setStep((s) => s + 1);
+  };
+
   const submit = async () => {
     const supabase = getSupabaseBrowserSafe();
     if (!supabase || !user) return toast.error("Supabase belum terhubung");
     if (!type) return toast.error("Pilih tipe laporan.");
-    if (form.title.trim().length < 3) return toast.error("Nama barang minimal 3 karakter.");
-    if (form.description.trim().length < 10) return toast.error("Deskripsi minimal 10 karakter.");
-    if (!form.category_id) return toast.error("Pilih kategori.");
+    if (!validateStep2()) return;
     setSubmitting(true);
 
     let finalImage = imageUrl;
@@ -118,21 +222,45 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
       }
     }
 
-    const { error } = await supabase.from("reports").insert({
+    const insertPayload = {
       type,
       title: form.title,
       description: form.description,
       category_id: form.category_id || null,
-      color: form.color || null,
+      color: form.reward || form.color || null,
       image_url: finalImage,
       location: form.location || null,
       city: form.city || null,
       lost_found_date: form.lost_found_date,
       status: "pending", // Menunggu Verifikasi
       owner_id: user.id,
-    });
+      reward: form.reward || null,
+      province: form.province || null,
+      reported_at: form.reported_at || null,
+    };
+    const { error } = await supabase.from("reports").insert(insertPayload);
     setSubmitting(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      if (error.message.includes("column") && error.message.includes("does not exist")) {
+        const fallbackPayload = {
+          type,
+          title: form.title,
+          description: form.description,
+          category_id: form.category_id || null,
+          color: form.reward || form.color || null,
+          image_url: finalImage,
+          location: form.location || null,
+          city: form.city || null,
+          lost_found_date: form.lost_found_date,
+          status: "pending",
+          owner_id: user.id,
+        };
+        const { error: fallbackError } = await supabase.from("reports").insert(fallbackPayload);
+        if (fallbackError) return toast.error(fallbackError.message);
+      } else {
+        return toast.error(error.message);
+      }
+    }
     toast.success("Laporan dikirim — Menunggu Verifikasi admin");
     router.push("/dashboard/my-reports");
   };
@@ -236,13 +364,14 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
             <h2 className="text-base sm:text-lg font-semibold">Isi Detail Laporan</h2>
             <div className="space-y-1.5">
               <Label htmlFor="title" className="text-sm">Nama Barang</Label>
-              <Input id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Mis. Dompet kulit hitam" className="text-sm" />
+              <Input id="title" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Mis. Dompet kulit hitam" className="text-sm" />
             </div>
             <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="category" className="text-sm">Kategori</Label>
                 <select
                   id="category"
+                  required
                   value={form.category_id}
                   onChange={(e) => setForm({ ...form, category_id: e.target.value })}
                   className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -254,25 +383,61 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
                 </select>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="color" className="text-sm">Warna</Label>
-                <Input id="color" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} placeholder="Mis. Hitam" className="text-sm" />
+                <Label htmlFor="reward" className="text-sm">Hadiah</Label>
+                <Input id="reward" required value={form.reward} onChange={(e) => setForm({ ...form, reward: e.target.value })} placeholder="Mis. Rp 100.000" className="text-sm" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="location" className="text-sm">Lokasi</Label>
-                <Input id="location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Mis. Stasiun Kota" className="text-sm" />
+                <Label htmlFor="province" className="text-sm">Provinsi</Label>
+                <select
+                  id="province"
+                  required
+                  value={form.province}
+                  onChange={(e) => setForm({ ...form, province: e.target.value, city: "" })}
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">Pilih provinsi</option>
+                  {INDONESIA_PROVINCES.map((p) => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="city" className="text-sm">Kota</Label>
-                <Input id="city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Mis. Jakarta" className="text-sm" />
+                <select
+                  id="city"
+                  required
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  disabled={!form.province}
+                >
+                  <option value="">{form.province ? `Pilih kota di ${form.province}` : "Pilih provinsi terlebih dahulu"}</option>
+                  {getCityOptions(form.province).map((city) => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="date" className="text-sm">Tanggal {type === "lost" ? "Hilang" : "Ditemukan"}</Label>
-              <Input id="date" type="date" value={form.lost_found_date} onChange={(e) => setForm({ ...form, lost_found_date: e.target.value })} className="text-sm" />
+              <Label htmlFor="location" className="text-sm">Lokasi</Label>
+              <div className="relative">
+                <MapPin className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input id="location" required value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Mis. Stasiun Kota, Jakarta" className="pl-9 text-sm" />
+              </div>
+            </div>
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="reported" className="text-sm">Dilaporkan</Label>
+                <Input id="reported" type="date" value={form.reported_at} readOnly className="text-sm bg-muted/50" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="date" className="text-sm">Terakhir Dilihat</Label>
+                <Input id="date" required type="date" value={form.lost_found_date} onChange={(e) => setForm({ ...form, lost_found_date: e.target.value })} className="text-sm" />
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="desc" className="text-sm">Deskripsi</Label>
-              <Textarea id="desc" rows={5} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="text-sm" />
+              <Textarea id="desc" required rows={5} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="text-sm" />
             </div>
           </div>
         )}
@@ -298,8 +463,9 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
                 <p className="text-xs sm:text-sm text-muted-foreground">{form.description}</p>
                 <div className="flex flex-wrap gap-2 pt-1 text-xs text-muted-foreground">
                   {form.category_id && <span>Kategori: {categories.find((c) => c.id === form.category_id)?.name}</span>}
-                  {form.color && <span>• Warna: {form.color}</span>}
+                  {form.reward && <span>• Hadiah: {form.reward}</span>}
                   {form.location && <span>• {form.location}</span>}
+                  {form.province && form.city && <span>• {form.city}, {form.province}</span>}
                 </div>
               </div>
             </div>
@@ -315,7 +481,7 @@ export function CreateReportForm({ categories }: { categories: Category[] }) {
             <ArrowLeft className="size-4" /> Sebelumnya
           </Button>
           {step < 3 ? (
-            <Button onClick={() => setStep((s) => s + 1)} disabled={step === 0 && !type} className="w-full sm:w-auto">
+            <Button onClick={handleNext} disabled={step === 0 && !type} className="w-full sm:w-auto">
               Lanjut <ArrowRight className="size-4" />
             </Button>
           ) : (

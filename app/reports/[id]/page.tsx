@@ -3,7 +3,7 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, Calendar, Tag, Palette, BadgeCheck, Eye } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Tag, Palette, BadgeCheck, Eye, Gift, Compass, Clock3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -110,12 +110,16 @@ export default async function ReportDetailPage({
               {report.location && (
                 <Info icon={MapPin} label="Lokasi" value={report.location} />
               )}
+              {report.city && (
+                <Info icon={Compass} label="Kota" value={report.city} />
+              )}
               {report.lost_found_date && (
-                <Info icon={Calendar} label="Tanggal" value={formatDate(report.lost_found_date)} />
+                <Info icon={Calendar} label="Terakhir Dilihat" value={formatDate(report.lost_found_date)} />
               )}
               {report.category_name && <Info icon={Tag} label="Kategori" value={report.category_name} />}
-              {report.color && <Info icon={Palette} label="Warna" value={report.color} />}
-              <Info icon={Eye} label="Dilihat" value={String(report.view_count)} />
+              {(report.color || (report as any).reward) && <Info icon={Gift} label="Hadiah" value={(report as any).reward || report.color || "—"} />}
+              {(report as any).reported_at && <Info icon={Clock3} label="Dilaporkan" value={formatDate((report as any).reported_at)} />}
+              <Info icon={Eye} label="Dilihat" value={typeof report.view_count === 'number' ? String(report.view_count) : "0"} />
             </div>
           </Card>
 

@@ -11,12 +11,24 @@ export function LiveReportWatcher({ reportId }: { reportId: string }) {
   React.useEffect(() => {
     const supabase = getSupabaseBrowserSafe();
     if (!supabase) return;
+
+    // Subscribe to report updates so the page refreshes on changes
     const ch = supabase
       .channel(`report:${reportId}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "reports", filter: `id=eq.${reportId}` }, () => {
         router.refresh();
       })
       .subscribe();
+
+    // Increment view count once on page load via server API; subscription will trigger refresh.
+    (async () => {
+      try {
+        await fetch(`/api/reports/${reportId}/view`, { method: "POST" });
+      } catch (e) {
+        // ignore
+      }
+    })();
+
     return () => {
       supabase.removeChannel(ch);
     };
