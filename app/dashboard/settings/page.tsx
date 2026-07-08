@@ -17,7 +17,7 @@ const THEMES = [
   { value: "light", label: "Terang", icon: Sun },
   { value: "dark", label: "Gelap", icon: Moon },
   { value: "system", label: "Sistem", icon: Monitor },
-];
+] as const;
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
