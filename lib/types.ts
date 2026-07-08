@@ -49,6 +49,7 @@ export interface Report {
   color: string | null;
   image_url: string | null;
   location: string | null;
+  province: string | null;
   city: string | null;
   lost_found_date: string | null;
   status: ReportStatus;
